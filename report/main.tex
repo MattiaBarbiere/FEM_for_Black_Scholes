@@ -1,0 +1,111 @@
+\documentclass{article}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\renewcommand{\footrulewidth}{1pt}
+\fancyfoot[L]{\leftmark}
+\fancyfoot[C]{\textbf{n° \thepage}} 
+\fancyfoot[R]{15.11.2024}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{hhline}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{subcaption}
+\usepackage{appendix}
+\usepackage{pgfplotstable}
+\pgfplotsset{compat=1.18}
+
+
+\usepackage{siunitx}
+
+\usepackage{booktabs} % For better table formatting
+
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{enumitem}
+
+
+%\usepackage[hidelinks]{hyperref}
+\usepackage{hyperref}
+
+
+\usepackage{cleveref}
+
+\usepackage{multirow}
+\usepackage{tabularx}
+
+
+% Customize lstlistins captions
+\newcommand{\codeexcerptname}{Fragment}
+\usepackage{caption}
+\DeclareCaptionFormat{mylistings}{#1#2#3}
+\captionsetup[lstlisting]{format=mylistings, labelsep=space} % Remove colon
+\renewcommand\lstlistingname{\codeexcerptname} % Custom name for lstlistings
+
+% Rename Cref link to code fragments
+\Crefname{listing}{\codeexcerptname}{\codeexcerptname s}
+
+% Usage: \codeListing{FIILE.py}{FIRSTLINE}{LASTLINE}{CAPTION}{LABEL}
+\newcommand{\codeListing}[5]{%
+    \lstinputlisting[
+      language=Python,
+      caption={\href{https://gitlab.epfl.ch/jfox/optimization-on-manifolds-project-1/-/blame/main/code/#1?ref_type=heads\#L#2}{(\texttt{\detokenize{#1}})}: #4},
+      firstline=#2,
+      lastline=#3,
+      firstnumber=#2,
+      label={#5}]{code/#1}%
+}
+
+\begin{document}
+
+\thispagestyle{empty}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{code/images/LOGO.png}
+\end{figure}
+\vspace{0.5cm}
+\begin{center}
+\textsc{ \Large MATH-451: Numerical Approximation of PDEs}
+\vspace{1.5cm}
+\hrule
+\vspace{0.5cm}
+{\huge \bfseries Black-Scholes Equation: European Put}
+\vspace{0.5cm}
+\hrule
+\vspace{1.5cm}
+
+
+\emph{\Large \centering Author:}\\
+\vspace{0.3cm}
+
+\large Mattia \textsc{\large Barbiere} (387974)\\
+
+~
+
+\vspace{0.5cm}
+
+
+\emph{\Large \centering Professor:}\\
+\vspace{0.3cm}
+\large  Annalisa  \textsc{\large Buffa}\\
+~
+
+\vspace{0.5cm}
+
+\large Spring Semester - 2025
+
+\end{center}
+
+\clearpage
+\pagenumbering{arabic} 
+
+\end{document}
