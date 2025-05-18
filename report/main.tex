@@ -18,7 +18,7 @@
 \usepackage{float}
 \usepackage{array}
 \usepackage{listings}
-\usepackage{subcaption}
+% \usepackage{subcaption}
 \usepackage{appendix}
 \usepackage{pgfplotstable}
 \pgfplotsset{compat=1.18}
@@ -42,12 +42,27 @@
 \usepackage{multirow}
 \usepackage{tabularx}
 
+%Definitions
+%\theoremstyle{definition}
+\newtheorem{df}{Definition}[section]
+\newtheorem{ex}{Example}[section]
+%Theorems and Lemmas
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[thm]
+\newtheorem{lemma}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+
+% Adjust spacing above and below displayed equations
+\usepackage{setspace}
+\setdisplayskipstretch{1.3}
+\setlength{\jot}{8pt} 
+
 
 % Customize lstlistins captions
 \newcommand{\codeexcerptname}{Fragment}
 \usepackage{caption}
 \DeclareCaptionFormat{mylistings}{#1#2#3}
-\captionsetup[lstlisting]{format=mylistings, labelsep=space} % Remove colon
+% \captionsetup[lstlisting]{format=mylistings, labelsep=space} % Remove colon
 \renewcommand\lstlistingname{\codeexcerptname} % Custom name for lstlistings
 
 % Rename Cref link to code fragments
@@ -63,6 +78,39 @@
       firstnumber=#2,
       label={#5}]{code/#1}%
 }
+
+
+% Macros
+\newcommand{\argwrap}[1]{\left(#1\right)}
+\newcommand{\argwrapsquare}[1]{\left[#1\right]}
+\newcommand{\intS}[1]{\ensuremath{\int_{\Omega}#1 \, dS}}
+\newcommand{\intSlong}[1]{\intS{\argwrapsquare{#1}}}
+\newcommand{\darg}[2]{\ensuremath{\, \partial_{#2}#1} \, }
+\newcommand{\dt}[1]{\ensuremath{\darg{#1}{t}}}
+\newcommand{\dS}[1]{\ensuremath{\darg{#1}{S}}}
+\newcommand{\dSS}[1]{\ensuremath{\darg{#1}{SS}}}
+\newcommand{\dtu}{\dt{u}}
+\newcommand{\dSu}{\dS{u}}
+\newcommand{\dSSu}{\dSS{u}}
+\newcommand{\dtv}{\dt{v}}
+\newcommand{\dSv}{\dS{v}}
+\newcommand{\dSSv}{\dSS{v}}
+\newcommand{\sigmafrac}{\ensuremath{\frac{\sigma^2}{2}}}
+\newcommand{\czero}{\ensuremath{C^0((0,T];L^2(\Omega))}}
+\newcommand{\seminorm}[1]{\ensuremath{|#1|_V}}
+\newcommand{\norm}[1]{\ensuremath{\|#1\|_{L^2(\Omega)}}}
+\newcommand{\seminormsq}[1]{\ensuremath{|#1|_V^2}}
+\newcommand{\normsq}[1]{\ensuremath{\|#1\|_{L^2(\Omega)}^2}}
+\newcommand{\aform}[2]{\ensuremath{\sigmafrac \intS{S^2 \dS{#2} \dS{#1}} + (\sigma^2 - r) \intS{S #2 \dS{#1}} + \intS{r  #1  #2}}}
+\newcommand{\auv}{\aform{u}{v}}
+
+
+
+
+
+
+
+
 
 \begin{document}
 
@@ -106,6 +154,169 @@
 \end{center}
 
 \clearpage
-\pagenumbering{arabic} 
+\pagenumbering{arabic}
+
+Let us define the following quantities
+\begin{df}[Black \& Scholes Equation for European Put Option]\label{def:problem}
+Consider the Black \& Scholes equation for the value \( u(S, t) \) of an European Put option:
+\[
+\begin{cases}
+\partial_t u - \frac{\sigma^2}{2} S^2 \partial_{SS} u - r S \partial_S u + r u = 0 & \text{in } \Omega \times (0, T], \\
+u(S, 0) = u_0(S) = \max \{ K - S, 0 \},
+\end{cases}
+\]
+where \(\Omega = (S_{\min}, S_{\max})\), \(\sigma\) and \(r\) are strictly positive and bounded constants, together with the following boundary conditions:
+\[
+\partial_S u(S_{\min}, t) = u(S_{\max}, t) = 0.
+\]
+\end{df}
+
+\begin{df}[Weighted Sobolev Space]
+We introduce the weighted Sobolev space \( V \):
+\[
+V = \left\{ v : v \in L^2(\Omega), S \frac{\partial v}{\partial S} \in L^2(\Omega), v(S_{\max}) = 0 \right\}.
+\]
+Endowed with the inner product and norm:
+\[
+(v, w)_V = \int_\Omega \left( v(S) w(S) + S^2 \frac{\partial v}{\partial S}(S) \frac{\partial w}{\partial S}(S) \right) dS, \quad \| v \|_V = (v, v)_V^{1/2}.
+\]
+The seminorm
+\[
+|v|_V^2 = \int_\Omega \left( S \frac{\partial v}{\partial S} \right)^2 dS
+\]
+is a norm in the Hilbert space \( V \) and we have the following Poincaré inequality:
+\[
+\| v \|_{L^2(\Omega)} \leq 2 |v|_V, \quad \forall v \in V.
+\]
+\end{df}
+
+\section{Question 1}
+\begin{df}\label{def:a}
+    For $u \in \czero$ and $v \in V$ we define the following bilinear form
+    \begin{equation*}
+        a(u,v) = \auv
+    \end{equation*}
+\end{df}
+\begin{prop}
+    The variational form of the problem defined in \Cref{def:problem} is
+    \begin{align*}
+    &\left( \dtu, v\right) + a(u,v) = \\
+    &= \intS{v \dtu} + \auv = 0
+    \end{align*}
+\end{prop}
+\begin{proof}
+    Take $v \in V$. Starting from \Cref{def:problem} we multiply by the test function $v$ and integrate over $\Omega$,
+    \begin{equation*}
+        \intS{v \dtu} - \intS{\sigmafrac S^2  v  \dSSu } - \intS{r S v \dSu} + \intS{r  u  v} = 0.
+    \end{equation*}
+    We now apply \Cref{thm:by_parts} to the second term. Thus we are left with
+    \begin{equation*}
+        \intS{v \dtu} - \sigmafrac \left[ \left. \left[S^2 v \dSu \right] \right|_{\partial\Omega} - \intS{\dS{(S^2v)} \dSu}\right] - \intS{r S v \dSu} + \intS{r  u  v} = 0.
+    \end{equation*}
+    On the boundary we have that
+    \begin{align*}
+        (S_{min})^2 v(S_{min}) \dSu(S_{min}, t) &= 0 \text{ because of the boundary condition } \dSu(S_{min}, t) = 0\\
+        (S_{max})^2 v(S_{max}) \dSu(S_{max}, t) &= 0 \text{ because of the boundary condition } v(S_{max}) = 0
+    \end{align*}
+    allowing us to eliminate the boundary term. Next using the product rule of the differential gives 
+    \begin{equation*}
+        \intS{v \dtu} + \sigmafrac \intSlong{2Sv \dSu + S^2 \dSv \dSu} - \intS{r S v \dSu} + \intS{r  u  v} = 0.
+    \end{equation*}
+    Next using the inner product $\left( \dtu, v\right) = \intS{v \dtu}$ and \Cref{def:a} we can rewrite this as
+    \begin{align*}
+    &\left( \dtu, v\right) + a(u,v) = \\
+    &= \intS{v \dtu} + \auv = 0 \qedhere
+    \end{align*}
+    \end{proof}
+
+\begin{prop}
+    For any $t \in (0,T]$ and any $v \in V$ we have that
+    \begin{equation*}
+        a(v,v) \geq \frac{\sigma^2}{4} \seminorm{v} - \alpha \normsq{v}
+    \end{equation*}
+    where $\alpha > 0$ is defined as
+    \begin{equation*}
+        \alpha = \begin{cases}
+            \frac{(\sigma^2 - r)^2}{ \sigma^2}, &\text{ if } \quad r \neq \sigma^2\\
+            \varepsilon, &\text{ if } \quad r = \sigma^2\\
+        \end{cases}
+    \end{equation*}
+    with $\varepsilon$ being any positive real number. In particular, $\varepsilon >0$ can be chosen arbitrarily small.
+    \begin{proof}
+        Recalling \Cref{def:a} we have that
+        \begin{align*}
+            a(v,v) &= \aform{v}{v}.
+        \end{align*}
+        By definition of $\normsq{\cdot}$ and $\seminormsq{\cdot}$ we have that
+        \begin{equation*}
+            a(v,v) = \sigmafrac \seminormsq{v} + (\sigma^2 - r) \intS{S v \dSv} + r \normsq{v}.
+        \end{equation*}
+        Using properties of the absolute value we can bound this by below
+        \begin{equation}\label{eq:first_lower_bound_a}
+            a(v,v) \geq \sigmafrac \seminormsq{v} - \left| (\sigma^2 - r) \intS{S v \dSv}\right| + r \normsq{v}.
+        \end{equation}
+        Let us focus on bounding the second term
+        \begin{align*}
+            - \left| (\sigma^2 - r) \intS{S v \dSv}\right| &\geq - \left| (\sigma^2 - r) \right| \intS{\left|S v \dSv \right|} && \text{ by the triangle inequality}\\
+            &\geq -\left| (\sigma^2 - r) \right| \norm{S \dSv} \norm{v} && \text{ by Cauchy–Schwarz inequality}\\
+            &\geq -\left| (\sigma^2 - r) \right| \left( \frac{ \normsq{S \dSv}}{2 \delta} + \frac{\delta \normsq{v}}{2}\right) && \text{ by Young's inequality, $\delta >0$}\\
+            & \geq - \frac{\sigma^2}{4} \seminorm{v} - \frac{(\sigma^2 - r)^2 \normsq{v}}{ \sigma^2}
+        \end{align*}
+        where the last inequality came from choosing $\delta = 2| (\sigma^2 - r) | / \sigma^2$. Plugging this back into \Cref{eq:first_lower_bound_a} give us the following lower bound for $a(v,v)$
+        \begin{align*}
+            a(v,v) &\geq \frac{\sigma^2}{4} \seminorm{v} - \frac{(\sigma^2 - r)^2}{ \sigma^2} \normsq{v} + r \normsq{v}\\
+            &\geq \frac{\sigma^2}{4} \seminorm{v} - \frac{(\sigma^2 - r)^2}{ \sigma^2} \normsq{v}.
+        \end{align*}
+        by noticing that $r \normsq{v} \geq 0$.
+        
+        Let us now consider two cases. Firstly, if $r \neq \sigma^2$ we can choose $\alpha = (\sigma^2 - r)^2 / \sigma^2 > 0$ and get
+        \begin{equation*}
+            a(v,v) \geq \frac{\sigma^2}{4} \seminorm{v} - \frac{(\sigma^2 - r)^2}{ \sigma^2} \normsq{v}
+        \end{equation*}
+        which is the desired inequality.
+
+        Secondly if $r = \sigma^2$ we can choose any $\alpha >0$ and in particular we can choose $\alpha$ arbitrarily close to $0$. For whatever choice of $\alpha > 0$ the following holds
+        \begin{equation*}
+            a(v,v) \geq \frac{\sigma^2}{4} \seminorm{v} - \alpha \normsq{v}
+        \end{equation*}
+        which is again the requested inequality.
+    \end{proof}
+\end{prop}
+
+\appendix
+\section{Green's formulas}
+In this appendix we present some useful formulas.
+
+\begin{thm}[Gauss--Ostrogradsky's formula]\label{thm:div}
+Let $\Omega \subset \mathbb{R}^n$ be a bounded set with $\partial\Omega \subset C^1$. For $u \in C^1(\bar{\Omega})$,
+\[
+\int_\Omega u_{x_i}(x)\,dx = \int_{\partial\Omega} u(y)\nu_i(y)\,dS(y), \qquad i = 1, \cdots, n.
+\]
+\end{thm}
+
+\begin{thm}[Integration by parts formula] \label{thm:by_parts}
+Let $\Omega \subset \mathbb{R}^n$ be a bounded set with $\partial\Omega \subset C^1$. For $u, v \in C^1(\bar{\Omega})$,
+\[
+\int_\Omega u_{x_i}(x)v(x)\,dx = -\int_\Omega u(x)v_{x_i}(x)\,dx + \int_{\partial\Omega} u(y)v(y)\nu_i(y)\,dS(y), \qquad i = 1, \cdots, n.
+\]
+or, in vectorial form,
+\[
+\int_\Omega \nabla u(x)v(x)\,dx = -\int_\Omega u(x)\nabla v(x)\,dx + \int_{\partial\Omega} u(y)v(y)\nu(y)\,dS(y)
+\]
+\end{thm}
+
+\begin{thm}[Green’s identities] \label{thm:green_id}
+Let $\Omega \subset \mathbb{R}^n$ be a bounded set with $\partial\Omega \subset C^1$. For $u, v \in C^2(\bar{\Omega})$,
+\[
+\int_\Omega \Delta u\,dx = \int_{\partial\Omega} \partial_\nu u\,dS,
+\]
+with $\partial_\nu u = \nabla u \cdot \nu$ being the normal derivative of $u$, and
+\[
+\int_\Omega v \Delta u\,dx = -\int_\Omega \nabla u \cdot \nabla v\,dx + \int_{\partial\Omega} v\partial_\nu u\,dS = \int_\Omega u\Delta v\,dx + \int_{\partial\Omega} (v \partial_\nu u - u \partial_\nu v)\,dS.
+\]
+\end{thm}
+
+All previous identities are valid also if the boundary $\partial\Omega$ is only Lipschitz continuous (since Lipschitz functions are differentiable everywhere but a set of points of Lebesgue measure zero).
+
 
 \end{document}

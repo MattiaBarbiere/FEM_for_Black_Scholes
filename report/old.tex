@@ -1,0 +1,56 @@
+% Question 1
+
+\begin{prop}
+    For any $t \in (0,T]$ and any $v \in V$ we have that
+    \begin{equation*}
+        a(v,v) \geq 
+    \end{equation*}
+    \begin{proof}
+        Recalling \Cref{def:a} we have that
+        \begin{align*}
+            a(v,v) &= \sigmafrac \intSlong{2Sv \dSv + (S\dSv)^2} - \intS{r S v \dSv} + \intS{r  v^2} \\
+            &=  \sigma^2 \intS{Sv \dSv} + \sigmafrac \intS{(S\dSv)^2} - \intS{r S v \dSv} + \intS{r  v^2}.
+        \end{align*}
+        By definition of $\normsq{\cdot}$ and $\seminormsq{\cdot}$ we have that
+        \begin{equation*}
+            a(v,v) = \sigma^2 \intS{Sv \dSv} + \sigmafrac \seminormsq{v} - \intS{r S v \dSv} + r \normsq{v}
+        \end{equation*}
+        With this in mind we use Young's inequality to bound the third term from below
+        \begin{align*}
+            - \intS{r S v \dSv} & \geq -r \left( \intSlong{\frac{v^2}{2 \varepsilon} + \frac{\varepsilon (S\dSv)^2}{2}}\right)\\
+            & = - \frac{r^2}{\sigma^2} \normsq{v} - \frac{\sigma^2}{4}\seminormsq{v}  && \text{after choosing $\varepsilon=\frac{\sigma^2}{2r}$}
+        \end{align*}
+        % \begin{align*}
+        %     - \intS{r S v \dSv} & \geq -r \left( \intSlong{\frac{v^2}{2 \varepsilon} + \frac{\varepsilon (S\dSv)^2}{2}}\right)\\
+        %     & = - \frac{r^2}{\sigma^2 - 2r \delta} \normsq{v} - \frac{\sigma^2}{4}\seminormsq{v} + \frac{\delta}{2}\seminormsq{v} && \text{after choosing $\varepsilon=\frac{\sigma^2}{2r} - \delta$ for $\delta < \frac{\sigma^2}{2r}$} \\
+        %     &\geq - \frac{r^2}{\sigma^2 - 2r \delta} \normsq{v} - \frac{\sigma^2}{4}\seminormsq{v} + \delta \normsq{v}.
+        % \end{align*}
+        Plugging this back in gives
+        \begin{equation*}
+            a(v,v) \geq \frac{\sigma^2}{4}\seminormsq{v} - \left(\frac{r^2}{\sigma^2} - r \right)\normsq{v} + \sigma^2 \intS{Sv \dSv} 
+        \end{equation*}
+        
+
+
+        
+        ---------------------------------------------------------------------------------------------------------------------------------
+        Notice that $v$ does not depend on $t$ and so $\dtv = 0$. Next by definition of \seminorm{v} and \norm{v}
+        \begin{equation*}
+            a(v,v) = \sigmafrac \seminormsq{v} - \intS{r S v \dSv} + r \normsq{v}
+        \end{equation*}
+        Lastly, we bound the remaining term by
+        \begin{align*}
+            - \intS{r S v \dSv} &\geq -r \norm{v} \norm{S\dSv} = && \text{by Cauchy-Swartz inequality}\\
+            &= -r \norm{v} \seminorm{v} && \text{by definition of \seminorm{v}}\\
+            &\geq -2r \seminormsq{v} && \text{by Poincaré inequality}.
+        \end{align*}
+        Putting everything together we have
+        \begin{equation*}
+            a(v,v) \geq \sigmafrac \seminormsq{v} -2r \seminormsq{v} + r \normsq{v} = \left(\sigmafrac - 2r\right)\seminormsq{v} - \alpha \normsq{v}
+        \end{equation*}
+        where $\alpha = r$. \qedhere
+    \end{proof}
+\end{prop}
+
+
+
