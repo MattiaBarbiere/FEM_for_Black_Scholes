@@ -33,8 +33,8 @@
 \usepackage{enumitem}
 
 
-%\usepackage[hidelinks]{hyperref}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
+% \usepackage{hyperref}
 
 
 \usepackage{cleveref}
@@ -88,6 +88,7 @@
 \newcommand{\darg}[2]{\ensuremath{\, \partial_{#2}#1} \, }
 \newcommand{\dt}[1]{\ensuremath{\darg{#1}{t}}}
 \newcommand{\dS}[1]{\ensuremath{\darg{#1}{S}}}
+\newcommand{\dSlong}[1]{\darg{\argwrap{#1}}{S}}
 \newcommand{\dSS}[1]{\ensuremath{\darg{#1}{SS}}}
 \newcommand{\dtu}{\dt{u}}
 \newcommand{\dSu}{\dS{u}}
@@ -197,7 +198,7 @@ is a norm in the Hilbert space \( V \) and we have the following Poincaré inequ
         a(u,v) = \auv
     \end{equation*}
 \end{df}
-\begin{prop}
+\begin{prop}\label{prop:variational_form}
     The variational form of the problem defined in \Cref{def:problem} is
     \begin{align*}
     &\left( \dtu, v\right) + a(u,v) = \\
@@ -229,7 +230,7 @@ is a norm in the Hilbert space \( V \) and we have the following Poincaré inequ
     \end{align*}
     \end{proof}
 
-\begin{prop}
+\begin{prop}\label{prop:ineq_a}
     For any $t \in (0,T]$ and any $v \in V$ we have that
     \begin{equation*}
         a(v,v) \geq \frac{\sigma^2}{4} \seminorm{v} - \alpha \normsq{v}
@@ -271,17 +272,117 @@ is a norm in the Hilbert space \( V \) and we have the following Poincaré inequ
         
         Let us now consider two cases. Firstly, if $r \neq \sigma^2$ we can choose $\alpha = (\sigma^2 - r)^2 / \sigma^2 > 0$ and get
         \begin{equation*}
-            a(v,v) \geq \frac{\sigma^2}{4} \seminorm{v} - \frac{(\sigma^2 - r)^2}{ \sigma^2} \normsq{v}
+            a(v,v) \geq \frac{\sigma^2}{4} \seminorm{v} - \alpha \normsq{v}
         \end{equation*}
         which is the desired inequality.
 
-        Secondly if $r = \sigma^2$ we can choose any $\alpha >0$ and in particular we can choose $\alpha$ arbitrarily close to $0$. For whatever choice of $\alpha > 0$ the following holds
+        Secondly if $r = \sigma^2$ we can choose any $\alpha >0$ and, in particular, we can choose $\alpha$ arbitrarily close to $0$. For whatever choice of $\alpha > 0$ the following holds
         \begin{equation*}
             a(v,v) \geq \frac{\sigma^2}{4} \seminorm{v} - \alpha \normsq{v}
         \end{equation*}
         which is again the requested inequality.
     \end{proof}
 \end{prop}
+
+\section{Question 2}
+Before answering this question I present a useful algebraic identity
+\begin{lemma}\label{lemma_alg_id_and_ineq}
+    For any integrable functions $f, g$ we have that
+    \begin{equation*}
+        \intS{(f - g)f} = \frac{1}{2}\left( \normsq{f} - \normsq{g} + \normsq{f - g}\right).
+    \end{equation*}
+    Moreover,
+    $$\intS{(f - g)f} \geq \frac{1}{2}\left( \normsq{f} - \normsq{g} \right)$$
+\end{lemma}
+\begin{proof}
+    Starting from the right hand side we have that
+    \begin{align*}
+        &\frac{1}{2}\left( \normsq{f} - \normsq{g} + \normsq{f - g}\right) =\\
+        &=\frac{1}{2}\left(\intS{f^2} -  \intS{g^2} + \intS{f^2} +  \intS{g^2} - 2\intS{fg} \right) =\\
+        &=\intS{f^2} - \intS{fg} = \intS{(f - g)f}.
+    \end{align*}
+    The second part is immediate after noticing that $\normsq{f - g} \geq 0$.
+\end{proof}
+
+\begin{lemma}\label{lemma:semi_discrete_prob}
+    A semi-discretization of the problem defined in \Cref{def:problem} is the following
+     \begin{align*}
+        &\intSlong{\frac{u^{j+1} - u^j}{\Delta t}  v} + \\
+        &+\sigmafrac \intS{S^2 \left(\dS{\left(\theta u^{j+1} + (1- \theta) u^{j+1} \right)}\right) \dSv} + \\
+        &+ (\sigma^2 - r) \intS{S v \dS{\left(\theta u^{j+1} + (1- \theta) u^{j+1} \right)}} + \\
+        &+r \intS{\left(\theta u^{j+1} + (1- \theta) u^{j+1} \right)v} =\\
+        &=0.
+        \end{align*}
+\end{lemma}
+\begin{proof}
+    Recall the variational form of the problem as shown in \Cref{prop:variational_form}
+    \begin{align*}
+        &\left( \dtu, v\right) + a(u,v) = \\
+        &= \intS{v \dtu} + \auv = 0.
+    \end{align*}
+    We aim to discretize in time only. Using finite difference for approximate the derivative and replacing $u$ with $\theta u^{j+1} + (1- \theta) u^{j+1}$
+     \begin{align*}
+        &\intSlong{\frac{u^{j+1} - u^j}{\Delta t}  v} + \\
+        &+\sigmafrac \intS{S^2 \left(\dS{\left(\theta u^{j+1} + (1- \theta) u^{j+1} \right)}\right) \dSv} + \\
+        &+ (\sigma^2 - r) \intS{S v \dS{\left(\theta u^{j+1} + (1- \theta) u^{j+1} \right)}} + \\
+        &+r \intS{\left(\theta u^{j+1} + (1- \theta) u^{j+1} \right)v} =\\
+        &=0.
+        \end{align*}
+\end{proof}
+
+\begin{prop}
+    The semi-discrete problem in \Cref{lemma:semi_discrete_prob} with $\theta = 1$ (i.e implicit Euler) is well posed for any time step $\Delta t \leq \frac{1}{2 \alpha}$.\\
+    Furthermore, the following inequality holds
+    \begin{equation*}
+        (1 - 2\alpha \Delta t)^N \| u^N \|_{L^2}^2 + \frac{\Delta t}{2} \sigma^2 \sum_{j=1}^{N-1} (1 - 2\alpha \Delta t)^{j-1} \seminormsq{u^j} \leq \| u^0 \|_{L^2}^2.
+        \label{eq:placeholder_label}
+    \end{equation*}
+\end{prop}
+\begin{proof}
+    Using $\theta = 1$ and $v = u^{j+1}$ in the result of \Cref{lemma:semi_discrete_prob} leaves us with
+    \begin{align*}
+        &\intSlong{\frac{u^{j+1} - u^j}{\Delta t}  u^{j+1}} + \\
+        &+\sigmafrac \intS{S^2 (\dS{(u^{j+1})})^2} + \\
+        &+ (\sigma^2 - r) \intS{S u^{j+1} \dS{(u^{j+1})}} + \\
+        &+r \intS{(u^{j+1})^2} =\\
+        &=0.
+        \end{align*}
+    Using \Cref{def:a} we can simplify this as
+    \begin{equation}\label{eq:discret_time_and_a_u_j+1}
+    \intSlong{\frac{u^{j+1} - u^j}{\Delta t}  u^{j+1}} + a(u^{j+1},u^{j+1}) = 0
+    \end{equation}
+   TODO Lax Milgram
+
+   I now prove the inequality. We start by multiplying \Cref{eq:discret_time_and_a_u_j+1} by $\Delta t \geq 0$
+   \begin{equation*}
+    \intSlong{(u^{j+1} - u^j)  u^{j+1}} + \Delta t \,a(u^{j+1},u^{j+1}) = 0.
+    \end{equation*}
+    next we use the inequality in \Cref{lemma_alg_id_and_ineq} using $f = u^{j+1}$ and $g =u^j$
+    \begin{equation*}
+        \frac{1}{2}\left( \normsq{u^{j+1}} - \normsq{u^{j}} \right) + \Delta t \,a(u^{j+1},u^{j+1}) \leq 0.
+    \end{equation*}
+    After multiplying by $2$ we can invoke \Cref{prop:ineq_a} and we are left with
+    \begin{equation*}
+         \normsq{u^{j+1}} - \normsq{u^{j}} + 2\Delta t \, \left( \frac{\sigma^2}{4} \seminorm{u^{j+1}} - \alpha \normsq{u^{j+1}} \right) \leq 0.
+    \end{equation*}
+    After moving some terms around this can we rewritten as
+    \begin{equation*}
+        (1- 2\alpha \Delta t)\normsq{u^{j+1}}  - \normsq{u^{j}} + \Delta t \, \sigmafrac \seminorm{u^{j+1}} \leq 0.
+    \end{equation*}
+   We multiply everything by $(1- 2\alpha \Delta t)^j$
+   \begin{equation*}
+       (1- 2\alpha \Delta t)^{j+1}\normsq{u^{j+1}}  - (1- 2\alpha \Delta t)^j \normsq{u^{j}} + \Delta t \, \sigmafrac (1- 2\alpha \Delta t)^j\seminorm{u^{j+1}} \leq 0.
+   \end{equation*}
+   As this inequality is valid for all $j \in \{0, \ldots, N-1 \}$ we can take the sum over $j$ and we observe that the first two terms form a telescoping sum
+   \begin{align*}
+       &\sum_{j=0}^{N-1} \left[(1- 2\alpha \Delta t)^{j+1}\normsq{u^{j+1}}  - (1- 2\alpha \Delta t)^j \normsq{u^{j}}\right] + \Delta t \, \sigmafrac \sum_{j=0}^{N-1}(1- 2\alpha \Delta t)^j\seminorm{u^{j+1}} \leq \\
+       &\leq (1- 2\alpha \Delta t)^{N}\normsq{u^{N}} - \normsq{u^{0}} + \Delta t \, \sigmafrac \sum_{j=0}^{N-1}(1- 2\alpha \Delta t)^j\seminorm{u^{j+1}} \leq 0.
+   \end{align*}
+   We conclude by moving $\normsq{u^{0}}$ to the right hand side and renaming $j \rightarrow j+1$.
+\end{proof}
+
+
+
 
 \appendix
 \section{Green's formulas}
@@ -317,6 +418,23 @@ with $\partial_\nu u = \nabla u \cdot \nu$ being the normal derivative of $u$, a
 \end{thm}
 
 All previous identities are valid also if the boundary $\partial\Omega$ is only Lipschitz continuous (since Lipschitz functions are differentiable everywhere but a set of points of Lebesgue measure zero).
+
+
+\begin{lemma}[Lax-Milgram Lemma]\label{lemma:lax_mil}
+    Given a Hilbert space V and a bilinear form $a(\cdot, \cdot)$ on V such that
+    \begin{align*}
+        & a(u,v) \leq M \| u\|_V \| v\|_V \quad \text{ (Continuity) }\\
+        &a(u,u) \geq \alpha \| u\|_V^2 \qquad \hspace{6mm} \text{ (Coercivity) }
+    \end{align*}
+    for some $M,\alpha>0$ then, given a functional $F$ on $V$, the problem
+    \begin{equation*}
+        a(u,v) = F(v)
+    \end{equation*}
+    admits a unique solution. Moreover, $\| u\|_V \leq \frac{1}{\alpha} \| F\|_{V'}$.
+\end{lemma}
+
+    
+
 
 
 \end{document}
