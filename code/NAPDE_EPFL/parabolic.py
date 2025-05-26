@@ -224,7 +224,7 @@ implicit_euler = partial(thetamethod, theta=1)
 crank_nicolson = partial(thetamethod, theta=.5)
 
 
-def make_video(mesh: Triangulation, solutions, time_instances=None, filename: str = 'animation.mp4', dpi=400):
+def make_video(mesh: Triangulation, solutions, time_instances=None, filename: str = 'animation.gif', dpi=400):
   """
     Create a video from a sequence of solution vectors that are compatible with `mesh`.
 
@@ -242,7 +242,7 @@ def make_video(mesh: Triangulation, solutions, time_instances=None, filename: st
     dpi : :class:`float`
       The quality of the video.
   """
-  assert filename.endswith('.mp4')
+  assert filename.endswith('.gif')
   from matplotlib import animation
   from matplotlib import pyplot as plt
   from matplotlib.tri import Triangulation as pltTriangulation
@@ -301,7 +301,13 @@ def make_video(mesh: Triangulation, solutions, time_instances=None, filename: st
                                  interval=interval,
                                  blit=True)
 
-  anim.save(filename, fps=30, extra_args=['-vcodec', 'libx264'], dpi=dpi)
+  # Check if ffmpeg is available, otherwise use default writer
+  try:
+    anim.save(filename, writer='ffmpeg', fps=30, extra_args=['-vcodec', 'libx264'], dpi=dpi)
+  except (RuntimeError, ValueError, TypeError):
+    # Fall back to default writer (Pillow) without unsupported arguments
+    print("ffmpeg unavailable, using default writer")
+    anim.save(filename, dpi=dpi)
 
 
 if __name__ == '__main__':

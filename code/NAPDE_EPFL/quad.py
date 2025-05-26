@@ -5,7 +5,7 @@
 @author: Jochen Hinz
 """
 
-from util import np, _, frozen
+from .util import np, _, frozen
 
 
 class QuadRule:
