@@ -32,6 +32,12 @@ class BlackScholesTrue:
         self.sigma = sigma
         self.T = T
 
+    def u0(self, S):
+        """
+        Initial condition for the Black-Scholes PDE at time t=0.
+        """
+        return np.maximum(self.K - S, 0)
+
     def d_1(self, S, t):
         '''
         Calculate d1 in the Black-Scholes formula.
@@ -78,6 +84,12 @@ class BlackScholesConstructed:
         self.K = K
         self.r = r
         self.sigma = sigma
+
+    def u0(self, S):
+        """
+        Initial condition for the Black-Scholes PDE at time t=0.
+        """
+        return np.maximum(self.K - S, 0)
 
     def true_sol(self, S, t):
         '''

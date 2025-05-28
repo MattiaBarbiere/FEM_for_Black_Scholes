@@ -3,6 +3,7 @@ Finite Element Method (FEM) solver for a simple 1D European put option.
 """
 import numpy as np
 from scipy.sparse import csr_matrix
+from scipy.sparse.linalg import spsolve
 
 
 from black_scholes_pde import BlackScholesTrue, BlackScholesConstructed
@@ -197,7 +198,7 @@ class FEMSolver:
         return csr_matrix(M), csr_matrix(A)
     
 
-    def apply_boundary_conditions(self, M, A, bc_type='put'):
+    def apply_boundary_conditions(self, M, A):
         """
         Apply boundary conditions to matrices
         
@@ -205,11 +206,9 @@ class FEMSolver:
         -----------
         M, A : sparse matrices
             Mass and stiffness matrices
-        bc_type : str
-            Type of boundary conditions
         """
         # For European put: ∂u/∂S(S_min, t) = 0, u(S_max, t) = 0
-        
+
         # Left boundary: ∂u/∂S = 0 (natural BC, already satisfied)
         # No modification needed for natural BC
         
@@ -247,18 +246,18 @@ class FEMSolver:
             Time points
         """
         # Time step
-        dt = T / numb_timesteps
-        times = np.linspace(0, T, numb_timesteps + 1)
+        dt = self.PDE.T / numb_timesteps
+        times = np.linspace(0, self.PDE.T, numb_timesteps + 1)
 
-        # Assemble matrices
-        M, A = self.assemble_matrices(self.PDE.sigma, self.PDE.r)
+        # The matrices
+        M, A = self.make_matrices(self.PDE.sigma, self.PDE.r)
         M, A = self.apply_boundary_conditions(M, A)
         
         # Initialize solution storage
         u_history = np.zeros((numb_timesteps + 1, self.numb_nodes))
-        u_history[0] = u0
-        u_current = u0.copy()
-        
+        u_history[0] = self.PDE.u0(self.nodes)
+        u_current = u_history[0].copy()
+
         if self.schema == 'BE':
             # System matrix: (M + dt*A)
             system_matrix = M + dt * A
@@ -293,6 +292,3 @@ class FEMSolver:
                 u_history[n + 1] = u_next
         
         return u_history, times
-    
-
-# TODO initial condition u0
