@@ -7,7 +7,7 @@ from scipy.sparse.linalg import spsolve
 
 
 from black_scholes_pde import BlackScholesTrue, BlackScholesConstructed
-from NAPDE_EPFL.quad import univariate_gauss
+from utils import univariate_gauss_interval
 
 
 class FEMSolver:
@@ -29,16 +29,16 @@ class FEMSolver:
         Type of quadrature scheme to use. Either "BE" for backward Euler or "CN" for Crank-Nicolson.
     """
 
-    def __init__(self, PDE, numb_elements=10, quad_points=4, element_type='P1', schema='BE'):
+    def __init__(self, PDE, numb_elements=10, numb_quad_points=4, element_type='P1', schema='BE'):
         self.PDE = PDE
         self.numb_elements = numb_elements
         self.element_type = element_type
         self.schema = schema
-        self.quad_points = quad_points
+        self.numb_quad_points = numb_quad_points
 
-        # Check that the PDE is an instance of BlackScholesPDE
-        if not isinstance(PDE, (BlackScholesTrue, BlackScholesConstructed)):
-            raise TypeError("PDE must be an instance of BlackScholesTrue or BlackScholesConstructed.")
+        # Check that the PDE is an instance of Black-ScholesPDE
+        # if not isinstance(PDE, (BlackScholesTrue, BlackScholesConstructed)):
+        #     raise TypeError("PDE must be an instance of BlackScholesTrue or BlackScholesConstructed.")
 
         # Validate element type
         if element_type not in ['P1', 'P2']:
@@ -52,9 +52,7 @@ class FEMSolver:
         self.create_mesh()
 
         # Create the quadrature object
-        self.quad = univariate_gauss(npoints=self.quad_points)
-        
-
+        self.quad = univariate_gauss_interval(S_min=self.PDE.S_min, S_max=self.PDE.S_max, npoints=self.numb_quad_points)
 
     def create_mesh(self):
         """
@@ -113,12 +111,12 @@ class FEMSolver:
 
         elif self.element_type == 'P2':
             # Quadratic basis functions
-            phi = np.array([(2 * xi - 1) * (xi - 1), xi * (2 * xi - 1), 4 * xi * (1 - xi)])
-            dphi = np.array([4 * xi - 3, 4 * xi - 1, 4 - 8 * xi])
+            phi = np.array([(2 * xi - 1) * (xi - 1), 4 * xi * (1 - xi), xi * (2 * xi - 1)])
+            dphi = np.array([4 * xi - 3, 4 - 8 * xi, 4 * xi - 1])
 
         return phi, dphi
     
-    def perform_integration_single_element(self, e):
+    def integration_basis_single_element(self, e):
         # Init local matrices for each element
         M_local = np.zeros((self.nodes_per_element, self.nodes_per_element))
         A_local = np.zeros((self.nodes_per_element, self.nodes_per_element))
@@ -132,6 +130,10 @@ class FEMSolver:
         
         # Size of the element
         h_e = S_right - S_left
+
+        ### Temp
+        # quad_points = np.array([0.1127016654, 0.5, 0.8872983346])
+        # quad_weights = np.array([5/18, 8/18, 5/18])
         
         # Numerical integration over element
         for q in range(len(self.quad.weights)):
@@ -165,6 +167,30 @@ class FEMSolver:
 
                     A_local[i, j] += w * (term1 + term2 + term3)
         return M_local, A_local
+    
+    def integration_rhs_single_element(self, e, t):
+        """
+        Compute local RHS vector for source term f(S, t).
+        """
+        F_local = np.zeros(self.nodes_per_element)
+        global_nodes = self.nodes_in_element[e]
+        S_left = self.nodes[global_nodes[0]]
+        S_right = self.nodes[global_nodes[-1]]
+        h_e = S_right - S_left
+
+        for q in range(len(self.quad.weights)):
+            xi_quad = self.quad.points[q, 0]
+            weight_quad = self.quad.weights[q]
+            S_quad = S_left + xi_quad * h_e
+            phi_quad, _ = self.basis_functions(xi_quad)
+
+            w = weight_quad * h_e
+            f_val = self.PDE.rhs(S_quad, t)  # Source evaluated at quad point and time
+
+            for i in range(self.nodes_per_element):
+                F_local[i] += w * f_val * phi_quad[i]
+
+        return F_local
 
 
     def make_matrices(self):
@@ -183,12 +209,12 @@ class FEMSolver:
         A = np.zeros((self.numb_nodes, self.numb_nodes))
         
         # Iterate over elements
-        for e in range(self.n_elements):
+        for e in range(self.numb_elements):
             # Get node indices for this element
             global_nodes = self.nodes_in_element[e]
 
             # Construct the global matrices from the local matrices
-            M_local, A_local = self.perform_integration_single_element(e)
+            M_local, A_local = self.integration_basis_single_element(e)
             for i in range(self.nodes_per_element):
                 for j in range(self.nodes_per_element):
                     I, J = global_nodes[i], global_nodes[j]
@@ -197,15 +223,43 @@ class FEMSolver:
         
         return csr_matrix(M), csr_matrix(A)
     
-
-    def apply_boundary_conditions(self, M, A):
+    def make_rhs(self, t):
         """
-        Apply boundary conditions to matrices
+        Make right-hand side vector F
+        
+        Parameters:
+        -----------
+        t : float
+            Current time point
+            
+        Returns:
+        --------
+        F : ndarray
+            Right-hand side vector
+        """
+        F = np.zeros(self.numb_nodes)
+        
+        # Iterate over elements to assemble the RHS
+        for e in range(self.numb_elements):
+            global_nodes = self.nodes_in_element[e]
+            F_local = self.integration_rhs_single_element(e, t)
+            for i in range(self.nodes_per_element):
+                I = global_nodes[i]
+                F[I] += F_local[i]
+        
+        return F
+    
+
+    def apply_boundary_conditions(self, M, A, F=None):
+        """
+        Apply boundary conditions to matrices and optionally to RHS vector
         
         Parameters:
         -----------
         M, A : sparse matrices
             Mass and stiffness matrices
+        F : ndarray, optional
+            Right-hand side vector
         """
         # For European put: ∂u/∂S(S_min, t) = 0, u(S_max, t) = 0
 
@@ -225,6 +279,10 @@ class FEMSolver:
         M[last_node, last_node] = 1
         A[last_node, :] = 0
         A[last_node, last_node] = 0  # Since u = 0 at boundary
+        
+        # Apply boundary condition to RHS if provided
+        if F is not None:
+            F[last_node] = 0  # u(S_max) = 0
             
         return M.tocsr(), A.tocsr()
     
@@ -250,7 +308,7 @@ class FEMSolver:
         times = np.linspace(0, self.PDE.T, numb_timesteps + 1)
 
         # The matrices
-        M, A = self.make_matrices(self.PDE.sigma, self.PDE.r)
+        M, A = self.make_matrices()
         M, A = self.apply_boundary_conditions(M, A)
         
         # Initialize solution storage
@@ -263,10 +321,12 @@ class FEMSolver:
             system_matrix = M + dt * A
 
             for n in range(numb_timesteps):
-                # Right-hand side: M * u^n
-                rhs = M.dot(u_current)
+                # Right-hand side: M * u^n + dt * F^{n+1}
+                F_next = self.make_rhs(times[n + 1])
                 
-                # Apply boundary conditions to RHS
+                rhs = M.dot(u_current) + dt * F_next
+                
+                # Apply boundary conditions to final RHS
                 rhs[-1] = 0  # u(S_max) = 0
                 
                 # Solve linear system
@@ -280,10 +340,17 @@ class FEMSolver:
             rhs_matrix = M - 0.5 * dt * A
             
             for n in range(numb_timesteps):
-                # Right-hand side: (M - 0.5*dt*A) * u^n
-                rhs = rhs_matrix.dot(u_current)
+                t_current = times[n]
+                t_next = times[n + 1]
                 
-                # Apply boundary conditions to RHS
+                # Source terms at current and next time
+                F_current = self.make_rhs(t_current)
+                F_next = self.make_rhs(t_next)
+                
+                # Right-hand side: (M - 0.5*dt*A) * u^n + 0.5*dt*(F^n + F^{n+1})
+                rhs = rhs_matrix.dot(u_current) + 0.5 * dt * (F_current + F_next)
+                
+                # Apply boundary conditions to final RHS
                 rhs[-1] = 0  # u(S_max) = 0
                 
                 # Solve linear system

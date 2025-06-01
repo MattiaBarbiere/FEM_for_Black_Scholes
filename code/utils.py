@@ -24,10 +24,9 @@ def univariate_gauss_interval(S_min, S_max, npoints=4):
     """
     
     points, weights = np.polynomial.legendre.leggauss(npoints)
-    
-    # Scale from interval [-1, 1] to interval [S_min, S_max]
-    points = 0.5 * (S_max - S_min) * (points + 1) + S_min
-    weights *= 0.5 * (S_max - S_min)
+    # Map from [-1, 1] to [0, 1]
+    points = 0.5 * (points + 1)
+    weights *= 0.5
     
     # Return the quadrature rule
     return QuadRule(name='{npoint} point univariate Gaussian integration over interval.',

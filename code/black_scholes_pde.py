@@ -32,6 +32,12 @@ class BlackScholesTrue:
         self.sigma = sigma
         self.T = T
 
+    def rhs(self, S, t):
+        """
+        Right-hand side of the Black-Scholes PDE.
+        """
+        return 0
+
     def u0(self, S):
         """
         Initial condition for the Black-Scholes PDE at time t=0.
@@ -78,12 +84,19 @@ class BlackScholesConstructed:
         Volatility of the underlying asset.
     """
 
-    def __init__(self, S_min, S_max, t, K, r, sigma):
+    def __init__(self, S_min, S_max, K, r, sigma):
         self.S_min = S_min
         self.S_max = S_max
         self.K = K
         self.r = r
         self.sigma = sigma
+
+    def rhs(self, S):
+        """
+        Right-hand side of the Black-Scholes PDE.
+        """
+        assert False
+        return -self.r * self.K * np.exp(-self.r * S**2) * np.sin(self.sigma * S)
 
     def u0(self, S):
         """
@@ -95,5 +108,5 @@ class BlackScholesConstructed:
         '''
         Calculate the artifically constructed solution for the Black-Scholes PDE.
         '''
-
+        assert False
         return self.K * np.exp(-self.r * S**2 - np.sin(self.sigma * t))
