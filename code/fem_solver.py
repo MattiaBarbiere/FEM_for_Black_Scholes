@@ -5,9 +5,36 @@ import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import spsolve
 
-
 from black_scholes_pde import BlackScholesTrue, BlackScholesConstructed
-from utils import univariate_gauss_interval
+from NAPDE_EPFL.quad import QuadRule
+
+# Gaussian quadrature for 1D interval [0, 1] using Legendre polynomials.    
+def univariate_gauss_interval(npoints=4):
+    """
+    Gaussian quadrature scheme over the interval [0, 1].
+    
+    Parameters
+    ----------
+    npoints : int, optional
+        Number of quadrature points, by default 4.
+    
+    Returns
+    -------
+    QuadRule
+        A `QuadRule` object containing the weights and points for the Gaussian quadrature.
+    """
+    
+    points, weights = np.polynomial.legendre.leggauss(npoints)
+    # Map from [-1, 1] to [0, 1]
+    points = 0.5 * (points + 1)
+    weights *= 0.5
+    
+    # Return the quadrature rule
+    return QuadRule(name='{npoint} point univariate Gaussian integration over interval.',
+                    order=2*npoints-1,
+                    simplex_type='line',
+                    weights=weights,
+                    points=points[:, np.newaxis])
 
 
 class FEMSolver:
@@ -37,8 +64,8 @@ class FEMSolver:
         self.numb_quad_points = numb_quad_points
 
         # Check that the PDE is an instance of Black-ScholesPDE
-        # if not isinstance(PDE, (BlackScholesTrue, BlackScholesConstructed)):
-        #     raise TypeError("PDE must be an instance of BlackScholesTrue or BlackScholesConstructed.")
+        if not isinstance(PDE, (BlackScholesTrue, BlackScholesConstructed)):
+            raise TypeError("PDE must be an instance of BlackScholesTrue or BlackScholesConstructed.")
 
         # Validate element type
         if element_type not in ['P1', 'P2']:
@@ -52,7 +79,7 @@ class FEMSolver:
         self.create_mesh()
 
         # Create the quadrature object
-        self.quad = univariate_gauss_interval(S_min=self.PDE.S_min, S_max=self.PDE.S_max, npoints=self.numb_quad_points)
+        self.quad = univariate_gauss_interval(npoints=self.numb_quad_points)
 
     def create_mesh(self):
         """
@@ -105,9 +132,9 @@ class FEMSolver:
             Basis function derivatives w.r.t. xi
         """
         if self.element_type == 'P1':
-            # Linear basis functions
-            phi = np.array([xi, 1 - xi])
-            dphi = np.array([np.ones_like(xi), -1 * np.ones_like(xi)])
+            # Linear basis functions (corrected order)
+            phi = np.array([1 - xi, xi])
+            dphi = np.array([-1 * np.ones_like(xi), np.ones_like(xi)])
 
         elif self.element_type == 'P2':
             # Quadratic basis functions
