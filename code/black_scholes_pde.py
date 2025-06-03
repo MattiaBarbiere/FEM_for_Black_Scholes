@@ -67,6 +67,7 @@ class BlackScholesTrue:
 class BlackScholesConstructed:
     """
     Class representing the Black-Scholes PDE for European put options with the constructed solution.
+    The constructed solution I chose is: K * exp(-rS - sin(sigma * t))
 
     Attributes:
     -----------
@@ -91,12 +92,13 @@ class BlackScholesConstructed:
         self.r = r
         self.sigma = sigma
 
-    def rhs(self, S):
+    def rhs(self, S, t):
         """
         Right-hand side of the Black-Scholes PDE.
         """
-        assert False
-        return -self.r * self.K * np.exp(-self.r * S**2) * np.sin(self.sigma * S)
+        return - self.sigma * np.cos(self.sigma * S) * self.true_sol(S, t) - \
+            (self.sigma * self.r * S)**2 * self.K * 0.5 * self.true_sol(S, t) + \
+            (self.r)**2 * self.K * S * self.true_sol(S, t) + self.r * self.true_sol(S, t)
 
     def u0(self, S):
         """
@@ -108,5 +110,4 @@ class BlackScholesConstructed:
         '''
         Calculate the artifically constructed solution for the Black-Scholes PDE.
         '''
-        assert False
-        return self.K * np.exp(-self.r * S**2 - np.sin(self.sigma * t))
+        return self.K * np.exp(-self.r * S - np.sin(self.sigma * t))
