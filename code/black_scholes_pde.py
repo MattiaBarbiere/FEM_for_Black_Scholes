@@ -107,7 +107,7 @@ class BlackScholesConstructed:
         """
         Initial condition for the Black-Scholes PDE at time t=0.
         """
-        return np.maximum(self.K - S, 0)
+        return self.K * np.exp(-self.r * S)
 
     def true_sol(self, S, t):
         '''
