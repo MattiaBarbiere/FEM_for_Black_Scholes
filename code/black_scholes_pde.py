@@ -14,14 +14,14 @@ class BlackScholesTrue:
         Minimum stock price.
     S_max : float
         Maximum stock price.
-    t : float
-        Time to maturity.
     K : float
         Strike price of the option.
     r : float
         Risk-free interest rate.
     sigma : float
         Volatility of the underlying asset.
+    T : float
+        Time to maturity.
     """
 
     def __init__(self, S_min, S_max, K, r, sigma, T):
@@ -83,14 +83,17 @@ class BlackScholesConstructed:
         Risk-free interest rate.
     sigma : float
         Volatility of the underlying asset.
+    T : float
+        Time to maturity.
     """
 
-    def __init__(self, S_min, S_max, K, r, sigma):
+    def __init__(self, S_min, S_max, K, r, sigma, T):
         self.S_min = S_min
         self.S_max = S_max
         self.K = K
         self.r = r
         self.sigma = sigma
+        self.T = T
 
     def rhs(self, S, t):
         """

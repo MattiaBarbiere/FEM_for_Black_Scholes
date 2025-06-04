@@ -141,7 +141,7 @@ def test_fem_vs_analytical(pde: BlackScholesTrue | BlackScholesConstructed):
                     bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
     
     plt.tight_layout()
-    plt.savefig('./code/images/fem_vs_analytical.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f"./code/images/fem_vs_analytical_{pde.__class__.__name__}.png", dpi=300, bbox_inches='tight')
     plt.show()
     
     ## Print summary of errors
@@ -178,7 +178,7 @@ def test_fem_vs_analytical(pde: BlackScholesTrue | BlackScholesConstructed):
     plt.grid(True, alpha=0.3)
     
     plt.tight_layout()
-    plt.savefig('./code/images/error_vs_time.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f"./code/images/error_vs_time_{pde.__class__.__name__}.png", dpi=300, bbox_inches='tight')
     plt.show()
     
     return errors
@@ -293,12 +293,35 @@ def convergence_study(pde: BlackScholesTrue | BlackScholesConstructed):
     plt.title('Convergence Study: Error vs Element Size')
     plt.legend()
     plt.grid(True, alpha=0.3)
-    plt.savefig('convergence_study.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f"./code/images/convergence_study_{pde.__class__.__name__}.png", dpi=300, bbox_inches='tight')
     plt.show()
     
     return errors_p1, errors_p2
 
 if __name__ == "__main__":
+    ### Question 3
+    ## Part 1: Test FEM against constructed analytical solution
+    # Set the parameters for the Black-Scholes PDE
+    S_min = 3.0
+    S_max = 10.0
+    K = 100.0
+    r = 0.04
+    sigma = 0.2
+    T = 1.0
+    
+    # Create PDE instance
+    pde = BlackScholesConstructed(S_min, S_max, K, r, sigma, T)
+    errors = test_fem_vs_analytical(pde)
+    
+    # Run convergence study
+    convergence_errors = convergence_study(pde)
+    
+    print("\n" + "="*30)
+    print("ANALYSIS COMPLETE FOR PART 1")
+    print("="*30)
+    
+    
+    ## Part 2: Test FEM against true analytical solution
     # Set the parameters for the Black-Scholes PDE
     S_min = 0.0
     S_max = 300.0
@@ -314,6 +337,6 @@ if __name__ == "__main__":
     # Run convergence study
     convergence_errors = convergence_study(pde)
     
-    print("\n" + "="*18)
-    print("ANALYSIS COMPLETE")
-    print("="*18)
+    print("\n" + "="*30)
+    print("ANALYSIS COMPLETE FOR PART 2")
+    print("="*30)
