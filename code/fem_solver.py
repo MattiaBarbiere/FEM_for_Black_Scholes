@@ -46,7 +46,7 @@ class FEMSolver:
     PDE : BlackScholesPDE
         Instance of the Black-Scholes PDE class that has to be solved.
     numb_elements : int
-        Number of finite elements to use in the discretization.
+        Number of finite elements to use in the discretization of space.
     quad_points : int
         Number of quadrature points to use for numerical integration.
         Default is 4, which corresponds to a 4-point Gauss-Legendre quadrature.
@@ -57,12 +57,6 @@ class FEMSolver:
     """
 
     def __init__(self, PDE, numb_elements=10, numb_quad_points=4, element_type='P1', schema='BE'):
-        self.PDE = PDE
-        self.numb_elements = numb_elements
-        self.element_type = element_type
-        self.schema = schema
-        self.numb_quad_points = numb_quad_points
-
         # Check that the PDE is an instance of Black-ScholesPDE
         if not isinstance(PDE, (BlackScholesTrue, BlackScholesConstructed)):
             raise TypeError("PDE must be an instance of BlackScholesTrue or BlackScholesConstructed.")
@@ -74,6 +68,13 @@ class FEMSolver:
         # Validate schema
         if schema not in ['BE', 'CN']:
             raise ValueError("Schema must be either 'BE' (Backward Euler) or 'CN' (Crank-Nicolson).")
+        
+        # Initialize attributes
+        self.PDE = PDE
+        self.numb_elements = numb_elements
+        self.element_type = element_type
+        self.schema = schema
+        self.numb_quad_points = numb_quad_points
         
         # Create the mesh
         self.create_mesh()
@@ -89,6 +90,7 @@ class FEMSolver:
             # Linear elements means we have 2 nodes per element
             self.nodes_per_element = 2
             self.numb_nodes = self.numb_elements + 1
+            
             # Node on the interval [S_min, S_max]
             self.nodes = np.linspace(self.PDE.S_min, self.PDE.S_max, self.numb_nodes)
 
@@ -117,7 +119,7 @@ class FEMSolver:
 
     def basis_functions(self, xi):
         """
-        Evaluate basis functions on reference element [0, 1]. For a given element this function can be scaled to the actual element interval.
+        Evaluate basis functions on reference element [0, 1].
         
         Parameters:
         -----------
@@ -157,10 +159,6 @@ class FEMSolver:
         
         # Size of the element
         h_e = S_right - S_left
-
-        ### Temp
-        # quad_points = np.array([0.1127016654, 0.5, 0.8872983346])
-        # quad_weights = np.array([5/18, 8/18, 5/18])
         
         # Numerical integration over element
         for q in range(len(self.quad.weights)):
@@ -186,18 +184,18 @@ class FEMSolver:
                     # Mass matrix = \int \phi_i \phi_j dS
                     M_local[i, j] += w * phi_quad[i] * phi_quad[j]
                     
-                    # Stiffness matrix from bilinear form a(\phi_j, \phi_i) from the report
-                    # a(u,v) = ∫[σ²/2 S² (∂u/∂S)(∂v/∂S) + rS (∂u/∂S)v - ruv] dS
+                    # Terms for the stiffness matrix from bilinear form a(\phi_j, \phi_i) from the report
                     term1 = (self.PDE.sigma**2 / 2) * S_quad**2 * dphi_dS_quad[j] * dphi_dS_quad[i]
                     term2 = (self.PDE.sigma**2 - self.PDE.r) * S_quad * dphi_dS_quad[j] * phi_quad[i]
                     term3 = self.PDE.r * phi_quad[j] * phi_quad[i]
 
+                    # Add to the stiffness matrix
                     A_local[i, j] += w * (term1 + term2 + term3)
         return M_local, A_local
     
     def integration_rhs_single_element(self, e, t):
         """
-        Compute local RHS vector for source term f(S, t).
+        Compute integration local RHS vector for source term f(S, t).
         """
         F_local = np.zeros(self.nodes_per_element)
         global_nodes = self.nodes_in_element[e]
@@ -218,7 +216,6 @@ class FEMSolver:
                 F_local[i] += w * f_val * phi_quad[i]
 
         return F_local
-
 
     def make_matrices(self):
         """
@@ -248,6 +245,7 @@ class FEMSolver:
                     M[I, J] += M_local[i, j]
                     A[I, J] += A_local[i, j]
         
+        # Convert to sparse matrices for efficiency
         return csr_matrix(M), csr_matrix(A)
     
     def make_rhs(self, t):
