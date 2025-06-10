@@ -204,14 +204,17 @@ class FEMSolver:
         h_e = S_right - S_left
 
         for q in range(len(self.quad.weights)):
+            # Quadrature point and weight on reference element [0, 1]
             xi_quad = self.quad.points[q, 0]
             weight_quad = self.quad.weights[q]
             S_quad = S_left + xi_quad * h_e
             phi_quad, _ = self.basis_functions(xi_quad)
 
+            # Integration weight including Jacobian
             w = weight_quad * h_e
-            f_val = self.PDE.rhs(S_quad, t)  # Source evaluated at quad point and time
+            f_val = self.PDE.rhs(S_quad, t)
 
+            # Compute the integral contribution for the local RHS vector
             for i in range(self.nodes_per_element):
                 F_local[i] += w * f_val * phi_quad[i]
 
@@ -286,7 +289,7 @@ class FEMSolver:
         F : ndarray, optional
             Right-hand side vector
         """
-        # For European put: ∂u/∂S(S_min, t) = 0, u(S_max, t) = 0
+        # BC are: du/dS(S_min, t) = 0, u(S_max, t) = 0
 
         # Left boundary: ∂u/∂S = 0 (natural BC, already satisfied)
         # No modification needed for natural BC
@@ -303,11 +306,11 @@ class FEMSolver:
         M[last_node, :] = 0
         M[last_node, last_node] = 1
         A[last_node, :] = 0
-        A[last_node, last_node] = 0  # Since u = 0 at boundary
+        A[last_node, last_node] = 0  
         
         # Apply boundary condition to RHS if provided
         if F is not None:
-            F[last_node] = 0  # u(S_max) = 0
+            F[last_node] = 0
             
         return M.tocsr(), A.tocsr()
     
@@ -334,7 +337,8 @@ class FEMSolver:
 
         # The matrices
         M, A = self.make_matrices()
-        M, A = self.apply_boundary_conditions(M, A)
+        F = self.make_rhs(times[0])
+        M, A = self.apply_boundary_conditions(M, A, F)
         
         # Initialize solution storage
         u_history = np.zeros((numb_timesteps + 1, self.numb_nodes))
@@ -352,7 +356,7 @@ class FEMSolver:
                 rhs = M.dot(u_current) + dt * F_next
                 
                 # Apply boundary conditions to final RHS
-                rhs[-1] = 0  # u(S_max) = 0
+                rhs[-1] = 0
                 
                 # Solve linear system
                 u_next = spsolve(system_matrix, rhs)
@@ -376,7 +380,7 @@ class FEMSolver:
                 rhs = rhs_matrix.dot(u_current) + 0.5 * dt * (F_current + F_next)
                 
                 # Apply boundary conditions to final RHS
-                rhs[-1] = 0  # u(S_max) = 0
+                rhs[-1] = 0 
                 
                 # Solve linear system
                 u_next = spsolve(system_matrix, rhs)

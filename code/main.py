@@ -8,7 +8,8 @@ import scipy.interpolate
 from fem_solver import FEMSolver
 from black_scholes_pde import BlackScholesTrue, BlackScholesConstructed
 
-def test_fem_vs_analytical(pde: BlackScholesTrue | BlackScholesConstructed):
+def test_fem_vs_analytical(pde: BlackScholesTrue | BlackScholesConstructed, 
+                           numb_elements=600, numb_timesteps=10):
     """
     Compare FEM solution with analytical Black-Scholes solution.
 
@@ -17,16 +18,16 @@ def test_fem_vs_analytical(pde: BlackScholesTrue | BlackScholesConstructed):
     pde : BlackScholesTrue | BlackScholesConstructed
         The PDE instance to use for the test. It can be either the true analytical solution
         or a constructed one.
+    numb_elements : int, optional
+        Number of elements for the FEM mesh. Default is 600.
+    numb_timesteps : int, optional
+        Number of timesteps for the FEM time integration. Default is 10.
     
     Returns
     -------
     errors : dict
         A dictionary containing the maximum and L2 errors for each configuration.
-    """    
-    # FEM parameters
-    numb_elements = 600
-    numb_timesteps = 10
-
+    """
     # Print the value of h and \delta t so that \delta t ~  h^2
     h = (pde.S_max - pde.S_min) / numb_elements
     delta_t = pde.T / numb_timesteps
@@ -48,10 +49,10 @@ def test_fem_vs_analytical(pde: BlackScholesTrue | BlackScholesConstructed):
     axes = axes.flatten()
     
     # Test times for comparison
-    times_to_test = np.linspace(0.1, pde.T, 5, endpoint=False)
+    times_to_test = np.linspace(0.1, pde.T, 5, endpoint=True)
 
     # Test points for comparison
-    stocks_to_test = np.linspace(20, 180, 50)
+    stocks_to_test = np.linspace(pde.S_min, pde.S_max, 50)
     
     # Dictionary to store errors
     errors = {}
@@ -114,7 +115,7 @@ def test_fem_vs_analytical(pde: BlackScholesTrue | BlackScholesConstructed):
         final_time = times[-1]
         
         # Plot on a finer grid for visualization
-        S_plot = np.linspace(pde.S_min + 1, pde.S_max - 1, 200)
+        S_plot = np.linspace(pde.S_min, pde.S_max, 200)
         interp_func_plot = scipy.interpolate.interp1d(
             fem_solver.nodes, u_history[-1], kind=interp_kind, fill_value="extrapolate"
         )
@@ -208,7 +209,7 @@ def convergence_study(pde: BlackScholesTrue | BlackScholesConstructed):
     numb_timesteps = 200
     
     # Values of S to test
-    stocks_to_test = np.linspace(20, 180, 50)
+    stocks_to_test = np.linspace(pde.S_min, pde.S_max, 50)
     final_time = pde.T
 
     # Initialize lists to keep track of errors
@@ -304,39 +305,56 @@ if __name__ == "__main__":
     # Set the parameters for the Black-Scholes PDE
     S_min = 3.0
     S_max = 10.0
-    K = 100.0
     r = 0.04
     sigma = 0.2
     T = 1.0
     
     # Create PDE instance
-    pde = BlackScholesConstructed(S_min, S_max, K, r, sigma, T)
-    errors = test_fem_vs_analytical(pde)
+    pde = BlackScholesConstructed(S_min, S_max, r, sigma, T)
+
+    # Plot the true soluton at t=0
+    S_plot = np.linspace(S_min, S_max, 200)
+    true_solution_0 = pde.true_sol(S_plot, 0)
+    true_solution_05 = pde.true_sol(S_plot, 0.5)
+    true_solution_1 = pde.true_sol(S_plot, 1)
+    plt.figure(figsize=(10, 6))
+    plt.plot(S_plot, true_solution_0, label='True Solution at t=0', color='blue')
+    plt.plot(S_plot, true_solution_05, label='True Solution at t=0.5', color='orange')
+    plt.plot(S_plot, true_solution_1, label='True Solution at t=1', color='green')
+    plt.title('True Solution of Black-Scholes PDE at t=0')
+    plt.xlabel('Stock Price S')
+    plt.ylabel('Option Value')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.savefig("./code/images/true_solution_t0.png", dpi=300, bbox_inches='tight')
+    plt.show()
+
+    errors = test_fem_vs_analytical(pde, numb_elements=200, numb_timesteps=400)
     
     # Run convergence study
-    convergence_errors = convergence_study(pde)
+    # convergence_errors = convergence_study(pde)
     
     print("\n" + "="*30)
     print("ANALYSIS COMPLETE FOR PART 1")
     print("="*30)
     
     
-    ## Part 2: Test FEM against true analytical solution
-    # Set the parameters for the Black-Scholes PDE
-    S_min = 0.0
-    S_max = 300.0
-    K = 100.0
-    r = 0.04
-    sigma = 0.2
-    T = 5.0
+    # ## Part 2: Test FEM against true analytical solution
+    # # Set the parameters for the Black-Scholes PDE
+    # S_min = 0.0
+    # S_max = 300.0
+    # K = 100.0
+    # r = 0.04
+    # sigma = 0.2
+    # T = 5.0
     
-    # Create PDE instance
-    pde = BlackScholesTrue(S_min, S_max, K, r, sigma, T)
-    errors = test_fem_vs_analytical(pde)
+    # # Create PDE instance
+    # pde = BlackScholesTrue(S_min, S_max, K, r, sigma, T)
+    # errors = test_fem_vs_analytical(pde)
     
-    # Run convergence study
-    convergence_errors = convergence_study(pde)
+    # # Run convergence study
+    # convergence_errors = convergence_study(pde)
     
-    print("\n" + "="*30)
-    print("ANALYSIS COMPLETE FOR PART 2")
-    print("="*30)
+    # print("\n" + "="*30)
+    # print("ANALYSIS COMPLETE FOR PART 2")
+    # print("="*30)
