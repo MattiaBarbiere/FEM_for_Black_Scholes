@@ -5,7 +5,7 @@ import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import spsolve
 
-from black_scholes_pde import BlackScholesTrue, BlackScholesConstructed
+from black_scholes_pde import BaseBlackScholes
 from NAPDE_EPFL.quad import QuadRule
 
 # Gaussian quadrature for 1D interval [0, 1] using Legendre polynomials.    
@@ -43,7 +43,7 @@ class FEMSolver:
 
     Attributes:
     -----------
-    PDE : BlackScholesPDE
+    PDE : BaseBlackScholes
         Instance of the Black-Scholes PDE class that has to be solved.
     numb_elements : int
         Number of finite elements to use in the discretization of space.
@@ -58,8 +58,8 @@ class FEMSolver:
 
     def __init__(self, PDE, numb_elements=10, numb_quad_points=4, element_type='P1', schema='BE'):
         # Check that the PDE is an instance of Black-ScholesPDE
-        if not isinstance(PDE, (BlackScholesTrue, BlackScholesConstructed)):
-            raise TypeError("PDE must be an instance of BlackScholesTrue or BlackScholesConstructed.")
+        if not isinstance(PDE, BaseBlackScholes):
+            raise TypeError("PDE must be an instance of BaseBlackScholes.")
 
         # Validate element type
         if element_type not in ['P1', 'P2']:
