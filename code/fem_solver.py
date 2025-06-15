@@ -8,6 +8,8 @@ from scipy.sparse.linalg import spsolve
 from black_scholes_pde import BaseBlackScholes
 from NAPDE_EPFL.quad import QuadRule
 
+from tqdm import tqdm
+
 # Gaussian quadrature for 1D interval [0, 1] using Legendre polynomials.    
 def univariate_gauss_interval(npoints=4):
     """
@@ -349,7 +351,7 @@ class FEMSolver:
             # System matrix: (M + dt*A)
             system_matrix = M + dt * A
 
-            for n in range(numb_timesteps):
+            for n in tqdm(range(numb_timesteps), desc=f"Solving in time (Backward Euler and {self.element_type})"):
                 # Right-hand side: M * u^n + dt * F^{n+1}
                 F_next = self.make_rhs(times[n + 1])
                 
@@ -367,8 +369,8 @@ class FEMSolver:
             # System matrices
             system_matrix = M + 0.5 * dt * A
             rhs_matrix = M - 0.5 * dt * A
-            
-            for n in range(numb_timesteps):
+
+            for n in tqdm(range(numb_timesteps), desc=f"Solving in time (Crank-Nicolson and {self.element_type})"):
                 t_current = times[n]
                 t_next = times[n + 1]
                 
