@@ -8,6 +8,13 @@ import scipy.interpolate
 from fem_solver import FEMSolver
 from black_scholes_pde import *
 
+# Flags to control which parts of the code to run
+COMPUTE_EXAMPLE_1 = True
+COMPUTE_EXAMPLE_2 = True
+COMPUTE_ANALYTICAL = True
+# The convergence study is computationally expensive, so it can be disabled
+COMPUTE_CONVERGENCE_STUDY = True
+
 def assert_order_delta_t_vs_h2(pde, element_count, timesteps_per_element):
     """
     Check if the time step size is approximately equal to the square of the element size.
@@ -151,7 +158,7 @@ def test_fem_vs_analytical(pde: BaseBlackScholes,
         axes[i].set_title(f'{label} at t={final_time:.2f}')
         axes[i].set_xlabel('Stock Price S')
         axes[i].set_ylabel('Option Value')
-        axes[i].legend()
+        axes[i].legend(loc=9)
         axes[i].grid(True, alpha=0.3)
         
         # Add max error to the plots
@@ -202,8 +209,7 @@ def test_fem_vs_analytical(pde: BaseBlackScholes,
     return errors
 
 
-def convergence_study(pde: BaseBlackScholes,
-                      element_counts, timesteps_per_element):
+def convergence_study(pde: BaseBlackScholes, element_counts, timesteps_per_element, numb_quad_points=2):
     """
     Study convergence with respect to mesh refinement.
 
@@ -244,7 +250,7 @@ def convergence_study(pde: BaseBlackScholes,
             numb_elements=element_counts[i], 
             element_type='P1',
             schema='CN', 
-            numb_quad_points=2
+            numb_quad_points=numb_quad_points
         )
         u_history_p1, _ = fem_solver_p1.solve_in_time(timesteps_per_element[i])
         
@@ -286,8 +292,8 @@ def convergence_study(pde: BaseBlackScholes,
     # Order of convergence lines
     plt.loglog(h_values, [0.05 * h**2 for h in h_values], '--', 
                label='O(h^2)', alpha=0.7, color='gray')
-    plt.loglog(h_values, [0.005 * h**3 for h in h_values], '--', 
-               label='O(h^3)', alpha=0.7, color='lightgray')
+    plt.loglog(h_values, [0.005 * h**4 for h in h_values], '--', 
+               label='O(h^4)', alpha=0.7, color='lightgray')
     
     plt.xlabel('Element size h')
     plt.ylabel('L2 Error')
@@ -300,104 +306,122 @@ def convergence_study(pde: BaseBlackScholes,
     return errors_p1, errors_p2
 
 if __name__ == "__main__":
-    ##########################
-    ### Question 3, Part 1 ###
-    ##########################
+    #####################################
+    ### Question 3, Part 1, Example 1 ###
+    #####################################
+    if COMPUTE_EXAMPLE_1:
+        # Parameters for the constructed PDE
+        S_min = 3.0
+        S_max = 10.0
+        r = 0.04
+        sigma = 0.2
+        T = 1.0
+        
+        # Create the constructed PDE instance
+        pde = BlackScholesConstructedCos(S_min, S_max, r, sigma, T)
 
-    # Test FEM against constructed solution
-    S_min = 3.0
-    S_max = 10.0
-    r = 0.04
-    sigma = 0.2
-    T = 1.0
-    
-    pde = BlackScholesConstructedCos(S_min, S_max, r, sigma, T)
+        # Plot the constructed solution at various times
+        S_plot_true_sol = np.linspace(S_min, S_max, 200) 
+        true_solution_0 = pde.true_sol(S_plot_true_sol, 0)
+        true_solution_05 = pde.true_sol(S_plot_true_sol, 0.5)
+        true_solution_1 = pde.true_sol(S_plot_true_sol, 1)
+        plt.figure(figsize=(10, 6))
+        plt.plot(S_plot_true_sol, true_solution_0, label='True Solution at t=0', color='blue')
+        plt.plot(S_plot_true_sol, true_solution_05, label='True Solution at t=0.5', color='orange')
+        plt.plot(S_plot_true_sol, true_solution_1, label='True Solution at t=1', color='green')
+        plt.title('True Solution of Black-Scholes PDE at various times')
+        plt.xlabel('Stock Price S')
+        plt.ylabel('Option Value')
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        plt.savefig("./code/images/true_constructed_cos.png", dpi=300, bbox_inches='tight')
+        plt.show()
 
-    # Plot the constructed solution at various times
-    S_plot_true_sol = np.linspace(S_min, S_max, 200) 
-    true_solution_0 = pde.true_sol(S_plot_true_sol, 0)
-    true_solution_05 = pde.true_sol(S_plot_true_sol, 0.5)
-    true_solution_1 = pde.true_sol(S_plot_true_sol, 1)
-    plt.figure(figsize=(10, 6))
-    plt.plot(S_plot_true_sol, true_solution_0, label='True Solution at t=0', color='blue')
-    plt.plot(S_plot_true_sol, true_solution_05, label='True Solution at t=0.5', color='orange')
-    plt.plot(S_plot_true_sol, true_solution_1, label='True Solution at t=1', color='green')
-    plt.title('True Solution of Black-Scholes PDE at various times')
-    plt.xlabel('Stock Price S')
-    plt.ylabel('Option Value')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.savefig("./code/images/true_constructed_cos.png", dpi=300, bbox_inches='tight')
-    plt.show()
+        # Solve the PDE using FEM and compare with analytical solution
+        errors = test_fem_vs_analytical(pde, numb_elements=100, numb_timesteps=300) 
+        
+        # Run convergence study to see the error vs. h curve
+        if COMPUTE_CONVERGENCE_STUDY:
+            element_counts = [10 * 2**i for i in range(1, 6)]
+            h_values = [(S_max - S_min) / e for e in element_counts]
+            timesteps_per_element = [int(np.ceil(T / (h**2))) for h in h_values]
+            convergence_errors = convergence_study(pde, element_counts, timesteps_per_element, numb_quad_points=10)
 
-    # Try running test_fem_vs_analytical with significantly higher resolution
-    errors = test_fem_vs_analytical(pde, numb_elements=100, numb_timesteps=300) 
-    
-    # Run convergence study to see the error vs. h curve
-    # convergence_errors = convergence_study(pde) 
-    
-    print("\n" + "="*30)
-    print("ANALYSIS COMPLETE FOR PART 1")
-    print("="*30)
+        print("\n" + "="*30)
+        print("ANALYSIS COMPLETE FOR PART 1")
+        print("="*30)
 
-    ################################
-    ### Question 3, Part 1 EXTRA ###
-    ################################
- 
-    # Extra pde for testing not included in the report
-    S_min = 3.0
-    S_max = 10.0
-    r = 0.04
-    sigma = 0.2
-    T = 1.0
-    
-    pde = BlackScholesConstructedPoly(S_min, S_max, r, sigma, T)
+    #####################################
+    ### Question 3, Part 1, Example 2 ###
+    #####################################
+    if COMPUTE_EXAMPLE_2:
+        # Parameters for the constructed PDE
+        S_min = 3.0
+        S_max = 10.0
+        r = 0.04
+        sigma = 0.2
+        T = 1.0
+        
+        # Create the constructed PDE instance
+        pde = BlackScholesConstructedPoly(S_min, S_max, r, sigma, T)
 
-    # Plot the constructed solution at various times
-    S_plot_true_sol = np.linspace(S_min, S_max, 200) 
-    true_solution_0 = pde.true_sol(S_plot_true_sol, 0)
-    true_solution_05 = pde.true_sol(S_plot_true_sol, 0.5)
-    true_solution_1 = pde.true_sol(S_plot_true_sol, 1)
-    plt.figure(figsize=(10, 6))
-    plt.plot(S_plot_true_sol, true_solution_0, label='True Solution at t=0', color='blue')
-    plt.plot(S_plot_true_sol, true_solution_05, label='True Solution at t=0.5', color='orange')
-    plt.plot(S_plot_true_sol, true_solution_1, label='True Solution at t=1', color='green')
-    plt.title('True Solution of Black-Scholes PDE at various times')
-    plt.xlabel('Stock Price S')
-    plt.ylabel('Option Value')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.savefig("./code/images/true_constructed_poly.png", dpi=300, bbox_inches='tight')
-    plt.show()
+        # Plot the constructed solution at various times
+        S_plot_true_sol = np.linspace(S_min, S_max, 200) 
+        true_solution_0 = pde.true_sol(S_plot_true_sol, 0)
+        true_solution_05 = pde.true_sol(S_plot_true_sol, 0.5)
+        true_solution_1 = pde.true_sol(S_plot_true_sol, 1)
+        plt.figure(figsize=(10, 6))
+        plt.plot(S_plot_true_sol, true_solution_0, label='True Solution at t=0', color='blue')
+        plt.plot(S_plot_true_sol, true_solution_05, label='True Solution at t=0.5', color='orange')
+        plt.plot(S_plot_true_sol, true_solution_1, label='True Solution at t=1', color='green')
+        plt.title('True Solution of Black-Scholes PDE at various times')
+        plt.xlabel('Stock Price S')
+        plt.ylabel('Option Value')
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        plt.savefig("./code/images/true_constructed_poly.png", dpi=300, bbox_inches='tight')
+        plt.show()
 
-    # Try running test_fem_vs_analytical with significantly higher resolution
-    errors = test_fem_vs_analytical(pde, numb_elements=100, numb_timesteps=300) 
-    
-    # Run convergence study to see the error vs. h curve
-    # convergence_errors = convergence_study(pde) 
-    
-    print("\n" + "="*30)
-    print("ANALYSIS COMPLETE FOR EXTRA PART")
-    print("="*30)
+        # Solve the PDE using FEM and compare with analytical solution
+        errors = test_fem_vs_analytical(pde, numb_elements=100, numb_timesteps=300) 
+        
+        # Run convergence study to see the error vs. h curve
+        if COMPUTE_CONVERGENCE_STUDY:
+            element_counts = [10 * 2**i for i in range(1, 6)]
+            h_values = [(S_max - S_min) / e for e in element_counts]
+            timesteps_per_element = [int(np.ceil(T / (h**2))) for h in h_values]
+            convergence_errors = convergence_study(pde, element_counts, timesteps_per_element)
+
+        print("\n" + "="*30)
+        print("ANALYSIS COMPLETE FOR EXTRA PART")
+        print("="*30)
     
     
     ##########################
     ### Question 3, Part 2 ###
     ##########################
+    if COMPUTE_ANALYTICAL:
+        # Parameters for the true Black-Scholes PDE
+        S_min = 0.0
+        S_max = 300.0
+        K = 100.0
+        r = 0.04
+        sigma = 0.2
+        T = 5.0
+        
+        # Create the true Black-Scholes PDE instance
+        pde = BlackScholesTrue(S_min, S_max, r, sigma, T, K)
 
-    # Test FEM against true analytical solution
-    S_min = 0.0
-    S_max = 300.0
-    K = 100.0
-    r = 0.04
-    sigma = 0.2
-    T = 5.0
-    
-    pde = BlackScholesTrue(S_min, S_max, r, sigma, T, K)
-    errors = test_fem_vs_analytical(pde, numb_elements=600, numb_timesteps=10)
-    
-    # convergence_errors = convergence_study(pde)
-    
-    print("\n" + "="*30)
-    print("ANALYSIS COMPLETE FOR PART 2")
-    print("="*30)
+        # Solve the PDE using FEM and compare with analytical solution
+        errors = test_fem_vs_analytical(pde, numb_elements=600, numb_timesteps=10)
+        
+        # Run convergence study to see the error vs. h curve
+        if COMPUTE_CONVERGENCE_STUDY:
+            element_counts = [200 * 2**i for i in range(1, 5)]
+            h_values = [(S_max - S_min) / e for e in element_counts]
+            timesteps_per_element = [int(np.ceil(T / (h**2))) for h in h_values]
+            convergence_errors = convergence_study(pde, element_counts, timesteps_per_element, numb_quad_points=50)
+
+        print("\n" + "="*30)
+        print("ANALYSIS COMPLETE FOR PART 2")
+        print("="*30)
