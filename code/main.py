@@ -88,7 +88,7 @@ def test_fem_vs_analytical(pde: BaseBlackScholes,
     axes = axes.flatten()
     
     # Times used for logging
-    times_to_check = np.linspace(0.5, pde.T, 5, endpoint=False)
+    times_to_check = np.linspace(0.01, pde.T, 11, endpoint=True)
     
     # Dictionary to store errors
     errors = {}
