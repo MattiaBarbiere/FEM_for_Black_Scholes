@@ -10,8 +10,8 @@ from fem_solver import FEMSolver
 from black_scholes_pde import *
 
 # Flags to control which parts of the code to run
-COMPUTE_EXAMPLE_1 = False
-COMPUTE_EXAMPLE_2 = False
+COMPUTE_EXAMPLE_1 = True
+COMPUTE_EXAMPLE_2 = True
 COMPUTE_ANALYTICAL = True
 # The convergence study is computationally expensive, so it can be disabled
 COMPUTE_CONVERGENCE_STUDY = True
@@ -309,7 +309,7 @@ def plot_convergence_errors(h_errors_dict, title="Convergence Study: Error vs El
     plt.xlabel('Element size h')
     plt.ylabel('L2 Error')
     plt.title(title)
-    plt.legend()
+    plt.legend(loc='lower right')
     plt.grid(True, alpha=0.3)
     if filename:
         plt.savefig(filename, dpi=300, bbox_inches='tight')
@@ -353,7 +353,7 @@ if __name__ == "__main__":
         
         # Run convergence study to see the error vs. h curve
         if COMPUTE_CONVERGENCE_STUDY:
-            element_counts = [10 * 2**i for i in range(0, 4)]
+            element_counts = [10 * 2**i for i in range(0, 5)]
             h_errors_dict = {}
             # P1 CN
             h1, e1 = convergence_study(pde, element_counts, schema='CN', element_type='P1', dt_h_power=1, dt_h_factor=1.0, numb_quad_points=5)
@@ -362,10 +362,10 @@ if __name__ == "__main__":
             h2, e2 = convergence_study(pde, element_counts, schema='BE', element_type='P1', dt_h_power=2, dt_h_factor=1.0, numb_quad_points=5)
             h_errors_dict['P1 BE'] = (h2, e2)
             # P2 CN
-            h3, e3 = convergence_study(pde, element_counts, schema='CN', element_type='P2', dt_h_power=2, dt_h_factor=1.0, numb_quad_points=5)
+            h3, e3 = convergence_study(pde, element_counts, schema='CN', element_type='P2', dt_h_power=3/2, dt_h_factor=1.0, numb_quad_points=5)
             h_errors_dict['P2 CN'] = (h3, e3)
             # P2 BE
-            h4, e4 = convergence_study(pde, element_counts, schema='BE', element_type='P2', dt_h_power=4, dt_h_factor=1.0, numb_quad_points=5)
+            h4, e4 = convergence_study(pde, element_counts, schema='BE', element_type='P2', dt_h_power=3, dt_h_factor=1.0, numb_quad_points=5)
             h_errors_dict['P2 BE'] = (h4, e4)
             plot_convergence_errors(h_errors_dict, filename=f"./code/images/convergence_study_{pde.__class__.__name__}.png")
         
@@ -407,7 +407,7 @@ if __name__ == "__main__":
         
         # Run convergence study to see the error vs. h curve
         if COMPUTE_CONVERGENCE_STUDY:
-            element_counts = [10 * 2**i for i in range(0, 4)]
+            element_counts = [10 * 2**i for i in range(0, 5)]
             h_errors_dict = {}
             # P1 CN
             h1, e1 = convergence_study(pde, element_counts, schema='CN', element_type='P1', dt_h_power=1, dt_h_factor=1.0)
@@ -416,10 +416,10 @@ if __name__ == "__main__":
             h2, e2 = convergence_study(pde, element_counts, schema='BE', element_type='P1', dt_h_power=2, dt_h_factor=1.0)
             h_errors_dict['P1 BE'] = (h2, e2)
             # P2 CN
-            h3, e3 = convergence_study(pde, element_counts, schema='CN', element_type='P2', dt_h_power=2, dt_h_factor=1.0)
+            h3, e3 = convergence_study(pde, element_counts, schema='CN', element_type='P2', dt_h_power=3/2, dt_h_factor=1.0)
             h_errors_dict['P2 CN'] = (h3, e3)
             # P2 BE
-            h4, e4 = convergence_study(pde, element_counts, schema='BE', element_type='P2', dt_h_power=4, dt_h_factor=1.0)
+            h4, e4 = convergence_study(pde, element_counts, schema='BE', element_type='P2', dt_h_power=3, dt_h_factor=1.0)
             h_errors_dict['P2 BE'] = (h4, e4)
             plot_convergence_errors(h_errors_dict, filename=f"./code/images/convergence_study_{pde.__class__.__name__}.png")
         
@@ -444,7 +444,7 @@ if __name__ == "__main__":
         
         # Run convergence study to see the error vs. h curve
         if COMPUTE_CONVERGENCE_STUDY:
-            element_counts = [200 * 2**i for i in range(0, 4)]
+            element_counts = [200 * 2**i for i in range(0, 5)]
             h_errors_dict = {}
             # P1 CN
             h1, e1 = convergence_study(pde, element_counts, schema='CN', element_type='P1', dt_h_power=1, dt_h_factor=1.0, numb_quad_points=5)
@@ -453,10 +453,10 @@ if __name__ == "__main__":
             h2, e2 = convergence_study(pde, element_counts, schema='BE', element_type='P1', dt_h_power=2, dt_h_factor=1.0, numb_quad_points=5)
             h_errors_dict['P1 BE'] = (h2, e2)
             # P2 CN
-            h3, e3 = convergence_study(pde, element_counts, schema='CN', element_type='P2', dt_h_power=2, dt_h_factor=1.0, numb_quad_points=5)
+            h3, e3 = convergence_study(pde, element_counts, schema='CN', element_type='P2', dt_h_power=3/2, dt_h_factor=1.0, numb_quad_points=5)
             h_errors_dict['P2 CN'] = (h3, e3)
             # P2 BE
-            h4, e4 = convergence_study(pde, element_counts, schema='BE', element_type='P2', dt_h_power=4, dt_h_factor=1.0, numb_quad_points=5)
+            h4, e4 = convergence_study(pde, element_counts, schema='BE', element_type='P2', dt_h_power=3, dt_h_factor=1.0, numb_quad_points=5)
             h_errors_dict['P2 BE'] = (h4, e4)
             plot_convergence_errors(h_errors_dict, filename=f"./code/images/convergence_study_{pde.__class__.__name__}.png")
         
