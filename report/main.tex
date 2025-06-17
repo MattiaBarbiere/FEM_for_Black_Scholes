@@ -45,6 +45,7 @@
 %Definitions
 %\theoremstyle{definition}
 \newtheorem{df}{Definition}[section]
+\newtheorem{remark}{Remark}[section]
 \newtheorem{ex}{Example}[section]
 %Theorems and Lemmas
 \newtheorem{thm}{Theorem}[section]
@@ -464,6 +465,7 @@ Before answering the question I introduce some useful definition and lemmas.
    We conclude by moving $\normsq{u^{0}}$ to the right hand side.\qedhere
 \end{proof}
 \section{Question C}
+\subsection{Constructed solution}
 Firstly, let us construct a solution by adapting the right-hand side and the initial conditions. One criterial that this solution must fulfil is that it must satisfy the boundary conditions given in \Cref{def:problem}. As such the chosen solution was
 \begin{equation}\label{eq:constructed_cos}
     u(S,t)=\left[\cos\left(\phi(S)\right)-1\right]e^{-\sin(t)} \quad \text{ where } \quad \phi(S)=0.4(S-3)(S-10).
@@ -488,7 +490,6 @@ The following lemma proves that this solution satisfies the boundary conditions.
     which proves that $u(S,t)$ satisfies the boundary conditions.
 \end{proof}
 \Cref{fig:plot_cos} plots the function $u(S,t)$ as a function of $S$ for some value of $t \in [0,1]$.
-
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.75\linewidth]{code/images/true_constructed_cos.png}
@@ -496,26 +497,60 @@ The following lemma proves that this solution satisfies the boundary conditions.
     \label{fig:plot_cos}
 \end{figure}
 
+As a initial visual check \Cref{fig:plot_cos} illustrates the analytical versus the (interpolated) solution given by the finite element solver. All methods provide a reasonable approximation of the solution, with P2 Crank-Nicolson provided the best approximation.
+
+\begin{remark}
+    To produce \Cref{fig:fem_vs_true_cos} the solution points given by the finite element solver where interpolated using the \href{https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html}{\texttt{scipy.interpolate.interp1d}} function. Nonetheless, all errors throughout the report are computed without interpolation to avoid any interpolation errors contaminating the true errors of the methods.
+\end{remark}
+
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=\linewidth]{code/images/fem_vs_analytical_BlackScholesConstructedCos.png}
     \caption{.}
-    \label{fig:fem_vs_true}
+    \label{fig:fem_vs_true_cos}
 \end{figure}
+
+After illustrating that the solver was working the next step was to inspect close the errors. The metrics that were used to quantify errors were the $L^2$ and $L^\infty$ norms. The first step was to understand how these errors evolve over time. \Cref{fig:error_vs_time_cos} illustrates the $L^2$ and $L^\infty$ errors as a function of time for the methods in question. There is a slight increase in the errors as we get further away from $t=0$, however both norm are plotted in a logarithmic scale and thus the increase of the errors is small.
 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=\linewidth]{code/images/error_vs_time_BlackScholesConstructedCos.png}
     \caption{.}
-    \label{fig:error_vs_time}
+    \label{fig:error_vs_time_cos}
 \end{figure}
+
+\subsubsection{Convergence study of the constructed solution}
+The final experiment on the artificial solution was to perform a convergence study. For the results to be meaningful, it is important that the time discretization does not dominate. To ensure this, the convergence study was performed using element size $h$ and time interval $\Delta t$ as shown in \Cref{tab:orders}.
+
+\begin{table}[h!]
+\centering
+
+\label{tab:orders}
+\begin{tabular}{|c|c|c|}
+\hline
+ & Backwards Euler & Crank-Nicolson \\
+\hline
+P1 & $\Delta t \approx h^2$ & $\Delta t \approx h$ \\
+\hline
+P2 & $\Delta t \approx h^3$ & $\Delta t \approx h^{3/2}$ \\
+\hline
+\end{tabular}
+\caption{Example Table}
+\end{table}
+
+Now it is possible to isolate the convergence as a function of the element size $h$. Performing the experiment results in \Cref{fig:conv_cos}. As expected when P1 was used the convergence order is close to order $2$ while when using P2 the convergence is close order $4$. 
+
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=\linewidth]{code/images/error_vs_time_BlackScholesConstructedCos.png}
+    \includegraphics[width=0.75\linewidth]{code/images/convergence_study_BlackScholesConstructedCos.png}
     \caption{.}
-    \label{fig:error_vs_time}
+    \label{fig:conv_cos}
 \end{figure}
+
+\subsection{True solution}
+
+\subsubsection{Convergence study of the true solution}
 
 
 
