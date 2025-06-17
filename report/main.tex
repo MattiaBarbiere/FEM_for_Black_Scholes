@@ -191,11 +191,11 @@ is a norm in the Hilbert space \( V \) and we have the following Poincaré inequ
 \]
 \end{df}
 
-\section{Question 1}
+\section{Question A}
 \begin{df}\label{def:a}
     For $u \in \czero$ and $v \in V$ we define the following bilinear form
     \begin{equation*}
-        a(u,v) = \auv
+        a(u,v) := \auv
     \end{equation*}
 \end{df}
 \begin{prop}\label{prop:variational_form}
@@ -261,30 +261,30 @@ is a norm in the Hilbert space \( V \) and we have the following Poincaré inequ
             - \left| (\sigma^2 - r) \intS{S v \dSv}\right| &\geq - \left| (\sigma^2 - r) \right| \intS{\left|S v \dSv \right|} && \text{ by the triangle inequality}\\
             &\geq -\left| (\sigma^2 - r) \right| \norm{S \dSv} \norm{v} && \text{ by Cauchy–Schwarz inequality}\\
             &\geq -\left| (\sigma^2 - r) \right| \left( \frac{ \normsq{S \dSv}}{2 \delta} + \frac{\delta \normsq{v}}{2}\right) && \text{ by Young's inequality, $\delta >0$}\\
-            & \geq - \frac{\sigma^2}{4} \seminorm{v} - \frac{(\sigma^2 - r)^2 \normsq{v}}{ \sigma^2}
+            & \geq - \frac{\sigma^2}{4} \seminormsq{v} - \frac{(\sigma^2 - r)^2 \normsq{v}}{ \sigma^2}
         \end{align*}
         where the last inequality came from choosing $\delta = 2| (\sigma^2 - r) | / \sigma^2$. Plugging this back into \Cref{eq:first_lower_bound_a} give us the following lower bound for $a(v,v)$
         \begin{align*}
-            a(v,v) &\geq \frac{\sigma^2}{4} \seminorm{v} - \frac{(\sigma^2 - r)^2}{ \sigma^2} \normsq{v} + r \normsq{v}\\
-            &\geq \frac{\sigma^2}{4} \seminorm{v} - \frac{(\sigma^2 - r)^2}{ \sigma^2} \normsq{v}.
+            a(v,v) &\geq \frac{\sigma^2}{4} \seminormsq{v} - \frac{(\sigma^2 - r)^2}{ \sigma^2} \normsq{v} + r \normsq{v}\\
+            &\geq \frac{\sigma^2}{4} \seminormsq{v} - \frac{(\sigma^2 - r)^2}{ \sigma^2} \normsq{v}.
         \end{align*}
         by noticing that $r \normsq{v} \geq 0$.
         
         Let us now consider two cases. Firstly, if $r \neq \sigma^2$ we can choose $\alpha = (\sigma^2 - r)^2 / \sigma^2 > 0$ and get
         \begin{equation*}
-            a(v,v) \geq \frac{\sigma^2}{4} \seminorm{v} - \alpha \normsq{v}
+            a(v,v) \geq \frac{\sigma^2}{4} \seminormsq{v} - \alpha \normsq{v}
         \end{equation*}
         which is the desired inequality.
 
         Secondly if $r = \sigma^2$ we can choose any $\alpha >0$ and, in particular, we can choose $\alpha$ arbitrarily close to $0$. For whatever choice of $\alpha > 0$ the following holds
         \begin{equation*}
-            a(v,v) \geq \frac{\sigma^2}{4} \seminorm{v} - \alpha \normsq{v}
+            a(v,v) \geq \frac{\sigma^2}{4} \seminormsq{v} - \alpha \normsq{v}
         \end{equation*}
         which is again the requested inequality.
     \end{proof}
 \end{prop}
 
-\section{Question 2}
+\section{Question B}
 Before answering this question I present a useful algebraic identity
 \begin{lemma}\label{lemma_alg_id_and_ineq}
     For any integrable functions $f, g$ we have that
@@ -307,10 +307,10 @@ Before answering this question I present a useful algebraic identity
 \begin{lemma}\label{lemma:semi_discrete_prob}
     A semi-discretization of the problem defined in \Cref{def:problem} is the following
      \begin{align*}
-        &\intSlong{\frac{u^{j+1} - u^j}{\Delta t}  v} + \\
-        &+\sigmafrac \intS{S^2 \left(\dS{\left(\theta u^{j+1} + (1- \theta) u^{j+1} \right)}\right) \dSv} + \\
-        &+ (\sigma^2 - r) \intS{S v \dS{\left(\theta u^{j+1} + (1- \theta) u^{j+1} \right)}} + \\
-        &+r \intS{\left(\theta u^{j+1} + (1- \theta) u^{j+1} \right)v} =\\
+        &\intSlong{\frac{u^{j} - u^{j-1}}{\Delta t}  v} + \\
+        &+\sigmafrac \intS{S^2 \left(\dS{\left(\theta u^{j} + (1- \theta) u^{j-1} \right)}\right) \dSv} + \\
+        &+ (\sigma^2 - r) \intS{S v \dS{\left(\theta u^{j} + (1- \theta) u^{j-1} \right)}} + \\
+        &+r \intS{\left(\theta u^{j} + (1- \theta) u^{j-1} \right)v} =\\
         &=0.
         \end{align*}
 \end{lemma}
@@ -320,67 +320,173 @@ Before answering this question I present a useful algebraic identity
         &\left( \dtu, v\right) + a(u,v) = \\
         &= \intS{v \dtu} + \auv = 0.
     \end{align*}
-    We aim to discretize in time only. Using finite difference for approximate the derivative and replacing $u$ with $\theta u^{j+1} + (1- \theta) u^{j+1}$
+    We aim to discretize in time only. Using finite difference for approximating the derivative and replacing $u$ with $\theta u^{j} + (1- \theta) u^{j-1}$
      \begin{align*}
-        &\intSlong{\frac{u^{j+1} - u^j}{\Delta t}  v} + \\
-        &+\sigmafrac \intS{S^2 \left(\dS{\left(\theta u^{j+1} + (1- \theta) u^{j+1} \right)}\right) \dSv} + \\
-        &+ (\sigma^2 - r) \intS{S v \dS{\left(\theta u^{j+1} + (1- \theta) u^{j+1} \right)}} + \\
-        &+r \intS{\left(\theta u^{j+1} + (1- \theta) u^{j+1} \right)v} =\\
+        &\intSlong{\frac{u^{j} - u^{j-1}}{\Delta t}  v} + \\
+        &+\sigmafrac \intS{S^2 \left(\dS{\left(\theta u^{j} + (1- \theta) u^{j-1} \right)}\right) \dSv} + \\
+        &+ (\sigma^2 - r) \intS{S v \dS{\left(\theta u^{j} + (1- \theta) u^{j-1} \right)}} + \\
+        &+r \intS{\left(\theta u^{j} + (1- \theta) u^{j-1} \right)v} =\\
         &=0.
         \end{align*}
 \end{proof}
+Before answering the question I introduce some useful definition and lemmas.
+
+
+\begin{df}\label{def:b}
+    For $v,w \in V$ and $\Delta t \in \mathbb{R}$ define the bilinear form $b(v, w)$ as
+    \begin{equation*}
+        b(v, w) := \intS{v\,w} + \Delta t\,a(v,w)
+    \end{equation*}
+\end{df}
+
+\begin{lemma}\label{lemma:b_lax_assump}
+    Assume $\Delta t \leq \frac{1}{2\alpha}$ where $\alpha$ is defined in \Cref{prop:ineq_a}. Then for any $v,w \in V$ the bilinear form $b(\cdot, \cdot)$ defined in \Cref{def:b} satisfies
+    \begin{align*}
+        & b(v,w) \leq M \| v\|_V \| w\|_V \quad \text{ (Continuity) }\\
+        &b(v,v) \geq \beta \| v\|_V^2 \qquad \hspace{6mm} \text{ (Coercivity) }
+    \end{align*}
+    for some $M,\beta>0$.
+\end{lemma}
+\begin{proof}
+    By definition of $b(v, w)$ we have that
+    \begin{align*}
+        b(v,w) &= \intS{v\,w} + \Delta t\,a(v,w)\\
+        &= \intS{v\,w} + \aform{v}{w}.
+    \end{align*}
+    Using Hölder's inequality multiply times and the definition of the seminorm, this can all be bounded by
+    \begin{align*}
+        b(v,w)  &\leq \normsq{v}\normsq{w} + \sigmafrac\seminormsq{v}\seminormsq{w} + (\sigma^2 - r ) \seminormsq{v}\normsq{w} + r \normsq{v} \normsq{w}\\
+        &\leq (1+r)\normsq{v} \normsq{w}+ \sigmafrac\seminormsq{v}\seminormsq{w} + \left|\sigma^2 - r\right| \seminormsq{v}\normsq{w}.
+    \end{align*}
+    As $v,w \in V$, by the definition of the space $V$ we have that $\seminormsq{v}, \seminormsq{w} < + \infty$ thus, as the above equation is finite, there must exist an $M >0$ such that
+    \begin{equation*}
+        b(v,w)  \leq M \| v\|_V \| w\|_V.
+    \end{equation*}
+    For coercivity $b(v, v)$ can be bounded by below by
+    \begin{align*}
+        b(v, v) &= \normsq{v} + \Delta t\, a(v,v) \geq \normsq{v} + \Delta t\, a(v,v)\\
+        & \geq \normsq{v} + \Delta t\, \left( \frac{\sigma^2}{4} \seminormsq{v} - \alpha \normsq{v} \right) \\
+        &= \left(1 - \Delta t \, \alpha  \right) \normsq{v} +\Delta t\, \frac{\sigma^2}{4} \seminormsq{v}
+    \end{align*}
+    where the second inequality comes \Cref{prop:ineq_a}. By assumption we have that $\Delta t \leq \frac{1}{2\alpha}$ and hence $\left(1 - \Delta t \, \alpha  \right) \geq \frac{1}{2}$ giving
+    \begin{align*}
+        b(v, v) &\geq \frac{1}{2}\normsq{v} +\Delta t\, \frac{\sigma^2}{4} \seminormsq{v}\\
+        & \geq \min\left(\frac{1}{2}, \Delta t\,\frac{\sigma^2}{4}\right) \left( \normsq{v} +  \seminormsq{v}\right)\\
+        &= \beta \| v\|_V^2
+    \end{align*}
+    by taking $\beta = \min\left(\frac{1}{2}, \Delta t\,\frac{\sigma^2}{4}\right) > 0$. \qedhere
+\end{proof}
+
+\begin{prop}\label{prop:lax_milgram}
+    The semi-discrete problem in \Cref{lemma:semi_discrete_prob} with $\theta = 1$ is well posed for any time step $\Delta t \leq \frac{1}{2 \alpha}$.
+\end{prop}
+\begin{proof}
+    Using $\theta = 1$ in the result of \Cref{lemma:semi_discrete_prob} leaves us with
+    \begin{align*}
+        &\intSlong{\frac{u^{j} - u^{j-1}}{\Delta t}  v} + \\
+        &+\sigmafrac \intS{S^2 \dS{\left(u^{j}\right)} \dSv} + \\
+        &+ (\sigma^2 - r) \intS{S v \dS{\left(u^{j}\right)}} + \\
+        &+r \intS{u^{j}v} =\\
+        &=0.
+        \end{align*}
+    Using \Cref{def:a} we can simplify this as
+    \begin{equation*}
+    \intSlong{\frac{u^{j} - u^{j-1}}{\Delta t} v} + a(u^{j},v) = 0.
+    \end{equation*}
+    Moving terms around
+    \begin{equation*}
+        \intS{u^{j}v} + \Delta t \,a(u^{j},v) = \intS{u^{j-1}v}.
+    \end{equation*}
+    We now perform induction over $j$ to prove that the problem is well posed.\\
+    \textbf{Base case:} $j = 1$. In this case
+    \begin{equation*}
+        \intS{u^{1}v} + \Delta t \,a(u^{1},v) = \intS{u^{0}v}.
+    \end{equation*}
+    and as $u^0$ is known and thus this is equivalent to 
+    \begin{equation}\label{eq:base_case}
+        b(u^{1}, v) = F(v)
+    \end{equation}
+    by \Cref{def:b}. Invoking the Lax-Milgram Lemma \Cref{lemma:lax_mil} and \Cref{lemma:b_lax_assump} we conclude that there exists a unique $u^1$ solving \Cref{eq:base_case}.\\
+    \textbf{Induction case: } For a general value of $j$ we have, assume that for $j-1$ the problem is well posed. Then this implies that $u^{j-1}$ exists and is unique. For this reason we can write the problem as
+    \begin{equation*}
+        b(u^{j},v)=\intS{u^{j}v} + \Delta t \,a(u^{j},v) = \intS{u^{j-1}v} = F(v)
+    \end{equation*}
+    and as $u^{j-1}$ is fixed. The conclusion comes once again by the Lax-Milgram Lemma \Cref{lemma:lax_mil} and \Cref{lemma:b_lax_assump}, proving that the problem is well posed for all $j$. \qedhere
+    
+    
+\end{proof}
 
 \begin{prop}
-    The semi-discrete problem in \Cref{lemma:semi_discrete_prob} with $\theta = 1$ (i.e implicit Euler) is well posed for any time step $\Delta t \leq \frac{1}{2 \alpha}$.\\
-    Furthermore, the following inequality holds
+    Given the semi-discrete problem in \Cref{lemma:semi_discrete_prob} with $\theta = 1$ (i.e implicit Euler), for any time step $\Delta t \leq \frac{1}{2 \alpha}$ the following inequality holds\\
     \begin{equation*}
         (1 - 2\alpha \Delta t)^N \| u^N \|_{L^2}^2 + \frac{\Delta t}{2} \sigma^2 \sum_{j=1}^{N-1} (1 - 2\alpha \Delta t)^{j-1} \seminormsq{u^j} \leq \| u^0 \|_{L^2}^2.
         \label{eq:placeholder_label}
     \end{equation*}
 \end{prop}
 \begin{proof}
-    Using $\theta = 1$ and $v = u^{j+1}$ in the result of \Cref{lemma:semi_discrete_prob} leaves us with
+    Using $\theta = 1$ and $v = u^j$ in the result of \Cref{lemma:semi_discrete_prob} leaves us with
     \begin{align*}
-        &\intSlong{\frac{u^{j+1} - u^j}{\Delta t}  u^{j+1}} + \\
-        &+\sigmafrac \intS{S^2 (\dS{(u^{j+1})})^2} + \\
-        &+ (\sigma^2 - r) \intS{S u^{j+1} \dS{(u^{j+1})}} + \\
-        &+r \intS{(u^{j+1})^2} =\\
+        &\intSlong{\frac{u^{j} - u^{j-1}}{\Delta t}  u^{j}} + \\
+        &+\sigmafrac \intS{S^2 \dS{\left(u^{j}\right)} \dS{u^{j}}} + \\
+        &+ (\sigma^2 - r) \intS{S u^{j} \dS{\left(u^{j}\right)}} + \\
+        &+r \intS{(u^{j})^2} =\\
         &=0.
         \end{align*}
-    Using \Cref{def:a} we can simplify this as
+    which can be rewritten as
     \begin{equation}\label{eq:discret_time_and_a_u_j+1}
-    \intSlong{\frac{u^{j+1} - u^j}{\Delta t}  u^{j+1}} + a(u^{j+1},u^{j+1}) = 0
+        \intSlong{\frac{u^{j} - u^{j-1}}{\Delta t}  u^{j}} + a(u^{j},u^{j}) = 0.
     \end{equation}
-   TODO Lax Milgram
-
-   I now prove the inequality. We start by multiplying \Cref{eq:discret_time_and_a_u_j+1} by $\Delta t \geq 0$
+   We start by multiplying \Cref{eq:discret_time_and_a_u_j+1} by $\Delta t \geq 0$
    \begin{equation*}
-    \intSlong{(u^{j+1} - u^j)  u^{j+1}} + \Delta t \,a(u^{j+1},u^{j+1}) = 0.
+    \intSlong{(u^{j} - u^{j-1})  u^{j}} + \Delta t \,a(u^{j},u^{j}) = 0.
     \end{equation*}
-    next we use the inequality in \Cref{lemma_alg_id_and_ineq} using $f = u^{j+1}$ and $g =u^j$
+    Next we use the inequality in \Cref{lemma_alg_id_and_ineq} using $f = u^{j}$ and $g =u^{j-1}$
     \begin{equation*}
         \frac{1}{2}\left( \normsq{u^{j+1}} - \normsq{u^{j}} \right) + \Delta t \,a(u^{j+1},u^{j+1}) \leq 0.
     \end{equation*}
     After multiplying by $2$ we can invoke \Cref{prop:ineq_a} and we are left with
     \begin{equation*}
-         \normsq{u^{j+1}} - \normsq{u^{j}} + 2\Delta t \, \left( \frac{\sigma^2}{4} \seminorm{u^{j+1}} - \alpha \normsq{u^{j+1}} \right) \leq 0.
+         \normsq{u^{j}} - \normsq{u^{j-1}} + 2\Delta t \, \left( \frac{\sigma^2}{4} \seminormsq{u^{j}} - \alpha \normsq{u^{j}} \right) \leq 0.
     \end{equation*}
-    After moving some terms around this can we rewritten as
+    After moving some terms around this can be rewritten as
     \begin{equation*}
-        (1- 2\alpha \Delta t)\normsq{u^{j+1}}  - \normsq{u^{j}} + \Delta t \, \sigmafrac \seminorm{u^{j+1}} \leq 0.
+        (1- 2\alpha \Delta t)\normsq{u^{j}}  - \normsq{u^{j-1}} + \Delta t \, \sigmafrac \seminormsq{u^{j}} \leq 0.
     \end{equation*}
-   We multiply everything by $(1- 2\alpha \Delta t)^j$
+   We multiply everything by $(1- 2\alpha \Delta t)^{j-1}$
    \begin{equation*}
-       (1- 2\alpha \Delta t)^{j+1}\normsq{u^{j+1}}  - (1- 2\alpha \Delta t)^j \normsq{u^{j}} + \Delta t \, \sigmafrac (1- 2\alpha \Delta t)^j\seminorm{u^{j+1}} \leq 0.
+       (1- 2\alpha \Delta t)^{j}\normsq{u^{j}}  - (1- 2\alpha \Delta t)^{j-1} \normsq{u^{j-1}} + \Delta t \, \sigmafrac (1- 2\alpha \Delta t)^{j-1}\seminormsq{u^{j}} \leq 0.
    \end{equation*}
-   As this inequality is valid for all $j \in \{0, \ldots, N-1 \}$ we can take the sum over $j$ and we observe that the first two terms form a telescoping sum
+   As this inequality is valid for all $j \in \{1, \ldots, N \}$ we can take the sum over $j$ and we observe that the first two terms form a telescoping sum
    \begin{align*}
-       &\sum_{j=0}^{N-1} \left[(1- 2\alpha \Delta t)^{j+1}\normsq{u^{j+1}}  - (1- 2\alpha \Delta t)^j \normsq{u^{j}}\right] + \Delta t \, \sigmafrac \sum_{j=0}^{N-1}(1- 2\alpha \Delta t)^j\seminorm{u^{j+1}} \leq \\
-       &\leq (1- 2\alpha \Delta t)^{N}\normsq{u^{N}} - \normsq{u^{0}} + \Delta t \, \sigmafrac \sum_{j=0}^{N-1}(1- 2\alpha \Delta t)^j\seminorm{u^{j+1}} \leq 0.
+       &\sum_{j=1}^{N} \left[(1- 2\alpha \Delta t)^{j}\normsq{u^{j}}  - (1- 2\alpha \Delta t)^{j-1} \normsq{u^{j-1}}\right] + \Delta t \, \sigmafrac \sum_{j=1}^{N}(1- 2\alpha \Delta t)^{j-1}\seminormsq{u^{j}} \\
+       &\leq (1- 2\alpha \Delta t)^{N}\normsq{u^{N}} - \normsq{u^{0}} + \Delta t \, \sigmafrac \sum_{j=1}^{N}(1- 2\alpha \Delta t)^{j-1}\seminormsq{u^{j}} \leq 0.
    \end{align*}
-   We conclude by moving $\normsq{u^{0}}$ to the right hand side and renaming $j \rightarrow j+1$.
+   We conclude by moving $\normsq{u^{0}}$ to the right hand side.\qedhere
 \end{proof}
+\section{Question C}
+Firstly, let us construct a solution by adapting the right-hand side and the initial conditions. One criterial that this solution must fulfil is that it must satisfy the boundary conditions given in \Cref{def:problem}. As such the chosen solution was
+\begin{equation}\label{eq:constructed_cos}
+    u(S,t)=\left[\cos\left(\phi(S)\right)-1\right]e^{-\sin(t)} \quad \text{ where } \quad \phi(S)=0.4(S-3)(S-10).
+\end{equation}
+Consequentially the initial condition $u_0$ and the right-hand side, denoted $f$, are
+\begin{align*}
+u_0(S)&=\cos\left(\phi(S)\right)-1\\[10pt]
+f(S, t) &=  u(S,t) \left(-\cos (t)\right) + \\ 
+&+ e^{-\sin (t)} \left\{- \frac{1}{2} \sigma^2 S^2 \left[ -0.16 (2S-13)^2 \cos(\phi(S)) - 0.8 \sin(\phi(S)) \right] - r S \left[ -0.4 (2S - 13) \sin(\phi(S)) \right] \right\}+ \\
+&+ r u(S, t).
+\end{align*}
 
+The following lemma proves that this solution satisfies the boundary conditions.
+\begin{lemma}
+    The solution $u(S,t)$ proposed in \Cref{eq:constructed_cos} agrees with the boundary conditions stated in \Cref{def:problem}.
+\end{lemma}
+\begin{proof}
+    By constructed we have that $\phi(3)=\phi(10)=0$. Thus $u(10,t)=\left[\cos\left(0\right)-1\right]e^{-\sin(t)} = 0$. Furthermore, the derivative with respect to $S$ of $u(S,t)$ evaluated at $S = 3$ is
+    \begin{equation*}
+        \dSu(3, t) = \left[-0.4 (2S - 13) \sin(\phi(3))\right]e^{-\sin (t)} = \left[-0.4 (2S - 13) \sin(0)\right]e^{-\sin (t)} = 0
+    \end{equation*}
+    which proves that $u(S,t)$ satisfies the boundary conditions.
+\end{proof}
 
 
 
@@ -421,16 +527,16 @@ All previous identities are valid also if the boundary $\partial\Omega$ is only 
 
 
 \begin{lemma}[Lax-Milgram Lemma]\label{lemma:lax_mil}
-    Given a Hilbert space V and a bilinear form $a(\cdot, \cdot)$ on V such that
+    Given a Hilbert space $V$ and a bilinear form $b(\cdot, \cdot)$ on $V$ such that
     \begin{align*}
-        & a(u,v) \leq M \| u\|_V \| v\|_V \quad \text{ (Continuity) }\\
-        &a(u,u) \geq \alpha \| u\|_V^2 \qquad \hspace{6mm} \text{ (Coercivity) }
+        & b(u,v) \leq M \| u\|_V \| v\|_V \quad \text{ (Continuity) }\\
+        &b(u,u) \geq \beta \| u\|_V^2 \qquad \hspace{6mm} \text{ (Coercivity) }
     \end{align*}
-    for some $M,\alpha>0$ then, given a functional $F$ on $V$, the problem
+    for some $M,\beta>0$ then, given a bounded functional $F$ on $V$, the problem
     \begin{equation*}
-        a(u,v) = F(v)
+        b(u,v) = F(v)
     \end{equation*}
-    admits a unique solution. Moreover, $\| u\|_V \leq \frac{1}{\alpha} \| F\|_{V'}$.
+    admits a unique solution. Moreover, $\| u\|_V \leq \frac{1}{\beta} \| F\|_{V'}$.
 \end{lemma}
 
     
