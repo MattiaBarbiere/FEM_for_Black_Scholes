@@ -488,18 +488,25 @@ The following lemma proves that this solution satisfies the boundary conditions.
     which proves that $u(S,t)$ satisfies the boundary conditions.
 \end{proof}
 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.75\linewidth]{code/images/true_constructed_cos.png}
+    \caption{.}
+    \label{fig:plot_cos}
+\end{figure}
+
 
 
 \appendix
 \section{Green's formulas}
 In this appendix we present some useful formulas.
 
-\begin{thm}[Gauss--Ostrogradsky's formula]\label{thm:div}
-Let $\Omega \subset \mathbb{R}^n$ be a bounded set with $\partial\Omega \subset C^1$. For $u \in C^1(\bar{\Omega})$,
-\[
-\int_\Omega u_{x_i}(x)\,dx = \int_{\partial\Omega} u(y)\nu_i(y)\,dS(y), \qquad i = 1, \cdots, n.
-\]
-\end{thm}
+% \begin{thm}[Gauss--Ostrogradsky's formula]\label{thm:div}
+% Let $\Omega \subset \mathbb{R}^n$ be a bounded set with $\partial\Omega \subset C^1$. For $u \in C^1(\bar{\Omega})$,
+% \[
+% \int_\Omega u_{x_i}(x)\,dx = \int_{\partial\Omega} u(y)\nu_i(y)\,dS(y), \qquad i = 1, \cdots, n.
+% \]
+% \end{thm}
 
 \begin{thm}[Integration by parts formula] \label{thm:by_parts}
 Let $\Omega \subset \mathbb{R}^n$ be a bounded set with $\partial\Omega \subset C^1$. For $u, v \in C^1(\bar{\Omega})$,
@@ -512,16 +519,16 @@ or, in vectorial form,
 \]
 \end{thm}
 
-\begin{thm}[Green’s identities] \label{thm:green_id}
-Let $\Omega \subset \mathbb{R}^n$ be a bounded set with $\partial\Omega \subset C^1$. For $u, v \in C^2(\bar{\Omega})$,
-\[
-\int_\Omega \Delta u\,dx = \int_{\partial\Omega} \partial_\nu u\,dS,
-\]
-with $\partial_\nu u = \nabla u \cdot \nu$ being the normal derivative of $u$, and
-\[
-\int_\Omega v \Delta u\,dx = -\int_\Omega \nabla u \cdot \nabla v\,dx + \int_{\partial\Omega} v\partial_\nu u\,dS = \int_\Omega u\Delta v\,dx + \int_{\partial\Omega} (v \partial_\nu u - u \partial_\nu v)\,dS.
-\]
-\end{thm}
+% \begin{thm}[Green’s identities] \label{thm:green_id}
+% Let $\Omega \subset \mathbb{R}^n$ be a bounded set with $\partial\Omega \subset C^1$. For $u, v \in C^2(\bar{\Omega})$,
+% \[
+% \int_\Omega \Delta u\,dx = \int_{\partial\Omega} \partial_\nu u\,dS,
+% \]
+% with $\partial_\nu u = \nabla u \cdot \nu$ being the normal derivative of $u$, and
+% \[
+% \int_\Omega v \Delta u\,dx = -\int_\Omega \nabla u \cdot \nabla v\,dx + \int_{\partial\Omega} v\partial_\nu u\,dS = \int_\Omega u\Delta v\,dx + \int_{\partial\Omega} (v \partial_\nu u - u \partial_\nu v)\,dS.
+% \]
+% \end{thm}
 
 All previous identities are valid also if the boundary $\partial\Omega$ is only Lipschitz continuous (since Lipschitz functions are differentiable everywhere but a set of points of Lebesgue measure zero).
 
