@@ -14,7 +14,7 @@ COMPUTE_EXAMPLE_1 = True
 COMPUTE_EXAMPLE_2 = True
 COMPUTE_ANALYTICAL = False
 # The convergence study is computationally expensive, so it can be disabled
-COMPUTE_CONVERGENCE_STUDY = False
+COMPUTE_CONVERGENCE_STUDY = True
 
 def assert_order_delta_t_vs_h2(pde, element_count, timesteps_per_element):
     """
@@ -210,9 +210,18 @@ def test_fem_vs_analytical(pde: BaseBlackScholes,
     return errors
 
 
-def convergence_study(pde: BaseBlackScholes, element_counts, timesteps_per_element, numb_quad_points=2):
+def convergence_study(
+    pde: BaseBlackScholes,
+    element_counts,
+    schema,
+    element_type,
+    dt_h_power=2,
+    dt_h_factor=1.0,
+    timesteps_per_element=None,
+    numb_quad_points=2
+):
     """
-    Study convergence with respect to mesh refinement.
+    Study convergence with respect to mesh refinement for a given schema and element type.
 
     Parameters
     ----------
@@ -220,91 +229,91 @@ def convergence_study(pde: BaseBlackScholes, element_counts, timesteps_per_eleme
         The PDE instance to use for the convergence study.
     element_counts : list
         List of numbers of elements to test.
-    timesteps : list
-        List of numbers of time steps to use for each element count.
-    
+    schema : str
+        Time-stepping scheme ('CN' or 'BE').
+    element_type : str
+        Element type ('P1' or 'P2').
+    dt_h_power, dt_h_factor : float
+        Power and factor for scaling dt ~ factor * h^power.
+    timesteps_per_element : list or None
+        List of numbers of time steps to use for each element count (overrides scaling if given).
+    numb_quad_points : int
+        Number of quadrature points.
+
     Returns
     -------
-    errors_p1 : list
-        List of L2 errors for P1 elements.
+    h_values : list
+        List of element sizes.
+    errors : list
+        List of L2 errors for each element count.
     """
-     
     print("\n" + "="*18)
-    print("CONVERGENCE STUDY")
+    print(f"CONVERGENCE STUDY: {element_type} {schema}")
     print("="*18)
-    
-    assert_order_delta_t_vs_h2(pde, element_counts, timesteps_per_element)
-    
-    final_time = pde.T
 
-    # Initialize lists to store errors
-    errors_p1 = []
-    errors_p2 = []
-    
-    # Loop over all the element counts and timesteps
+    h_values = [(pde.S_max - pde.S_min) / n for n in element_counts]
+
+    # Compute timesteps if not provided
+    if timesteps_per_element is None:
+        timesteps = []
+        for h in h_values:
+            dt = dt_h_factor * h**dt_h_power
+            timesteps.append(int(np.ceil(pde.T / dt)))
+    else:
+        timesteps = list(timesteps_per_element)
+
+    print(f"{element_type} {schema} scaling: Δt ~ {dt_h_factor:.2g} * h^{dt_h_power}")
+
+    final_time = pde.T
+    errors = []
+
     for i in range(len(element_counts)):
-        print(f"\nTesting with {element_counts[i]} elements...")
-        
-        ### P1 elements ###
-        fem_solver_p1 = FEMSolver(
+        print(f"Testing with {element_counts[i]} elements...")
+        fem_solver = FEMSolver(
             pde,
-            numb_elements=element_counts[i], 
-            element_type='P1',
-            schema='CN', 
+            numb_elements=element_counts[i],
+            element_type=element_type,
+            schema=schema,
             numb_quad_points=numb_quad_points
         )
-        u_history_p1, _ = fem_solver_p1.solve_in_time(timesteps_per_element[i])
-        
-        # Compute analytical solution at FEM nodes for error calculation
-        analytical_p1_at_nodes = pde.true_sol(fem_solver_p1.nodes, final_time)
-        
-        # Compute and store the L2 error directly at nodes
-        error_p1 = np.sqrt(np.mean((u_history_p1[-1] - analytical_p1_at_nodes)**2))
-        errors_p1.append(error_p1)
-        
-        ### P2 elements ###
-        fem_solver_p2 = FEMSolver(
-            pde,
-            numb_elements= element_counts[i], 
-            element_type='P2',
-            schema='CN', 
-            numb_quad_points=4
-        )
-        u_history_p2, _ = fem_solver_p2.solve_in_time(timesteps_per_element[i])
-        
-        # Compute analytical solution at FEM nodes for error calculation
-        analytical_p2_at_nodes = pde.true_sol(fem_solver_p2.nodes, final_time)
+        u_history, _ = fem_solver.solve_in_time(timesteps[i])
+        analytical_at_nodes = pde.true_sol(fem_solver.nodes, final_time)
+        error = np.sqrt(np.mean((u_history[-1] - analytical_at_nodes)**2))
+        errors.append(error)
+        print(f"   {element_type} {schema} L2 Error: {error:.6f}")
 
-        # Compute and store the L2 error directly at nodes
-        error_p2 = np.sqrt(np.mean((u_history_p2[-1] - analytical_p2_at_nodes)**2))
-        errors_p2.append(error_p2)
-        
-        print(f"   P1 L2 Error: {error_p1:.6f}")
-        print(f"   P2 L2 Error: {error_p2:.6f}")
-    
-    # Convert element counts to numpy array for plotting
-    h_values = [(pde.S_max - pde.S_min) / n for n in element_counts]
-    
-    ### Plot convergence results
+    return h_values, errors
+
+def plot_convergence_errors(h_errors_dict, title="Convergence Study: Error vs Element Size", filename=None):
+    """
+    Plot convergence errors for multiple configurations.
+
+    Parameters
+    ----------
+    h_errors_dict : dict
+        Dictionary with keys as labels and values as (h_values, errors) tuples.
+    title : str
+        Plot title.
+    filename : str or None
+        If given, save the plot to this file.
+    """
     plt.figure(figsize=(10, 6))
-    plt.loglog(h_values, errors_p1, 'o-', label='P1 elements', linewidth=2)
-    plt.loglog(h_values, errors_p2, 's-', label='P2 elements', linewidth=2)
-    
-    # Order of convergence lines
-    plt.loglog(h_values, [0.05 * h**2 for h in h_values], '--', 
-               label='O(h^2)', alpha=0.7, color='gray')
-    plt.loglog(h_values, [0.005 * h**4 for h in h_values], '--', 
-               label='O(h^4)', alpha=0.7, color='lightgray')
-    
+    for label, (h_values, errors) in h_errors_dict.items():
+        marker = 'o-' if 'P1' in label else 's-'
+        plt.loglog(h_values, errors, marker, label=label, linewidth=2)
+    # Reference lines
+    all_h = np.concatenate([np.array(hv) for hv, _ in h_errors_dict.values()])
+    h_ref = np.sort(np.unique(all_h))
+    plt.loglog(h_ref, 0.05 * h_ref**2, '--', label='O(h^2)', alpha=0.7, color='gray')
+    plt.loglog(h_ref, 0.005 * h_ref**4, '--', label='O(h^4)', alpha=0.7, color='lightgray')
     plt.xlabel('Element size h')
     plt.ylabel('L2 Error')
-    plt.title('Convergence Study: Error vs Element Size')
+    plt.title(title)
     plt.legend()
     plt.grid(True, alpha=0.3)
-    plt.savefig(f"./code/images/convergence_study_{pde.__class__.__name__}.png", dpi=300, bbox_inches='tight')
+    if filename:
+        plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
-    
-    return errors_p1, errors_p2
 
 if __name__ == "__main__":
     #####################################
@@ -344,14 +353,22 @@ if __name__ == "__main__":
         
         # Run convergence study to see the error vs. h curve
         if COMPUTE_CONVERGENCE_STUDY:
-            element_counts = [10 * 2**i for i in range(1, 6)]
-            h_values = [(S_max - S_min) / e for e in element_counts]
-            timesteps_per_element = [int(np.ceil(T / (h**2))) for h in h_values]
-            convergence_errors = convergence_study(pde, element_counts, timesteps_per_element, numb_quad_points=10)
-
-        print("\n" + "="*30)
-        print("ANALYSIS COMPLETE FOR PART 1")
-        print("="*30)
+            element_counts = [10 * 2**i for i in range(0, 4)]
+            h_errors_dict = {}
+            # P1 CN
+            h1, e1 = convergence_study(pde, element_counts, schema='CN', element_type='P1', dt_h_power=1, dt_h_factor=1.0, numb_quad_points=5)
+            h_errors_dict['P1 CN'] = (h1, e1)
+            # P1 BE
+            h2, e2 = convergence_study(pde, element_counts, schema='BE', element_type='P1', dt_h_power=2, dt_h_factor=1.0, numb_quad_points=5)
+            h_errors_dict['P1 BE'] = (h2, e2)
+            # P2 CN
+            h3, e3 = convergence_study(pde, element_counts, schema='CN', element_type='P2', dt_h_power=2, dt_h_factor=1.0, numb_quad_points=5)
+            h_errors_dict['P2 CN'] = (h3, e3)
+            # P2 BE
+            h4, e4 = convergence_study(pde, element_counts, schema='BE', element_type='P2', dt_h_power=4, dt_h_factor=1.0, numb_quad_points=5)
+            h_errors_dict['P2 BE'] = (h4, e4)
+            plot_convergence_errors(h_errors_dict, filename=f"./code/images/convergence_study_{pde.__class__.__name__}.png")
+        
 
     #####################################
     ### Question 3, Part 1, Example 2 ###
@@ -390,16 +407,23 @@ if __name__ == "__main__":
         
         # Run convergence study to see the error vs. h curve
         if COMPUTE_CONVERGENCE_STUDY:
-            element_counts = [10 * 2**i for i in range(1, 6)]
-            h_values = [(S_max - S_min) / e for e in element_counts]
-            timesteps_per_element = [int(np.ceil(T / (h**2))) for h in h_values]
-            convergence_errors = convergence_study(pde, element_counts, timesteps_per_element)
+            element_counts = [10 * 2**i for i in range(0, 4)]
+            h_errors_dict = {}
+            # P1 CN
+            h1, e1 = convergence_study(pde, element_counts, schema='CN', element_type='P1', dt_h_power=1, dt_h_factor=1.0)
+            h_errors_dict['P1 CN'] = (h1, e1)
+            # P1 BE
+            h2, e2 = convergence_study(pde, element_counts, schema='BE', element_type='P1', dt_h_power=2, dt_h_factor=1.0)
+            h_errors_dict['P1 BE'] = (h2, e2)
+            # P2 CN
+            h3, e3 = convergence_study(pde, element_counts, schema='CN', element_type='P2', dt_h_power=2, dt_h_factor=1.0)
+            h_errors_dict['P2 CN'] = (h3, e3)
+            # P2 BE
+            h4, e4 = convergence_study(pde, element_counts, schema='BE', element_type='P2', dt_h_power=4, dt_h_factor=1.0)
+            h_errors_dict['P2 BE'] = (h4, e4)
+            plot_convergence_errors(h_errors_dict, filename=f"./code/images/convergence_study_{pde.__class__.__name__}.png")
+        
 
-        print("\n" + "="*30)
-        print("ANALYSIS COMPLETE FOR EXTRA PART")
-        print("="*30)
-    
-    
     ##########################
     ### Question 3, Part 2 ###
     ##########################
@@ -421,10 +445,18 @@ if __name__ == "__main__":
         # Run convergence study to see the error vs. h curve
         if COMPUTE_CONVERGENCE_STUDY:
             element_counts = [200 * 2**i for i in range(1, 5)]
-            h_values = [(S_max - S_min) / e for e in element_counts]
-            timesteps_per_element = [int(np.ceil(T / (h**2))) for h in h_values]
-            convergence_errors = convergence_study(pde, element_counts, timesteps_per_element, numb_quad_points=20)
-
-        print("\n" + "="*30)
-        print("ANALYSIS COMPLETE FOR PART 2")
-        print("="*30)
+            h_errors_dict = {}
+            # P1 CN
+            h1, e1 = convergence_study(pde, element_counts, schema='CN', element_type='P1', dt_h_power=2, dt_h_factor=1.0, numb_quad_points=20)
+            h_errors_dict['P1 CN'] = (h1, e1)
+            # P1 BE
+            h2, e2 = convergence_study(pde, element_counts, schema='BE', element_type='P1', dt_h_power=2, dt_h_factor=1.0, numb_quad_points=20)
+            h_errors_dict['P1 BE'] = (h2, e2)
+            # P2 CN
+            h3, e3 = convergence_study(pde, element_counts, schema='CN', element_type='P2', dt_h_power=4, dt_h_factor=1.0, numb_quad_points=20)
+            h_errors_dict['P2 CN'] = (h3, e3)
+            # P2 BE
+            h4, e4 = convergence_study(pde, element_counts, schema='BE', element_type='P2', dt_h_power=4, dt_h_factor=1.0, numb_quad_points=20)
+            h_errors_dict['P2 BE'] = (h4, e4)
+            plot_convergence_errors(h_errors_dict, filename=f"./code/images/convergence_study_{pde.__class__.__name__}.png")
+        
