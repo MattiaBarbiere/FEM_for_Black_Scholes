@@ -2,6 +2,7 @@
 Script to test the FEM solver against the analytical Black-Scholes solution.
 """
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import scipy.interpolate
 
@@ -11,9 +12,9 @@ from black_scholes_pde import *
 # Flags to control which parts of the code to run
 COMPUTE_EXAMPLE_1 = True
 COMPUTE_EXAMPLE_2 = True
-COMPUTE_ANALYTICAL = True
+COMPUTE_ANALYTICAL = False
 # The convergence study is computationally expensive, so it can be disabled
-COMPUTE_CONVERGENCE_STUDY = True
+COMPUTE_CONVERGENCE_STUDY = False
 
 def assert_order_delta_t_vs_h2(pde, element_count, timesteps_per_element):
     """
@@ -320,15 +321,16 @@ if __name__ == "__main__":
         # Create the constructed PDE instance
         pde = BlackScholesConstructedCos(S_min, S_max, r, sigma, T)
 
-        # Plot the constructed solution at various times
-        S_plot_true_sol = np.linspace(S_min, S_max, 200) 
-        true_solution_0 = pde.true_sol(S_plot_true_sol, 0)
-        true_solution_05 = pde.true_sol(S_plot_true_sol, 0.5)
-        true_solution_1 = pde.true_sol(S_plot_true_sol, 1)
+        # Plot the constructed solution at various times with colormap lines
+        S_plot_true_sol = np.linspace(S_min, S_max, 200)
+        times = [0, 0.25, 0.5, 0.75, 1]
+        cmap = matplotlib.colormaps['plasma']
+        colors = cmap(np.linspace(0, 0.8, len(times)))
         plt.figure(figsize=(10, 6))
-        plt.plot(S_plot_true_sol, true_solution_0, label='True Solution at t=0', color='blue')
-        plt.plot(S_plot_true_sol, true_solution_05, label='True Solution at t=0.5', color='orange')
-        plt.plot(S_plot_true_sol, true_solution_1, label='True Solution at t=1', color='green')
+        for i, t in enumerate(times):
+            color = colors[i]
+            true_sol = pde.true_sol(S_plot_true_sol, t)
+            plt.plot(S_plot_true_sol, true_sol, label=f't={t}', color=color, alpha=0.8)
         plt.title('True Solution of Black-Scholes PDE at various times')
         plt.xlabel('Stock Price S')
         plt.ylabel('Option Value')
@@ -365,15 +367,16 @@ if __name__ == "__main__":
         # Create the constructed PDE instance
         pde = BlackScholesConstructedPoly(S_min, S_max, r, sigma, T)
 
-        # Plot the constructed solution at various times
-        S_plot_true_sol = np.linspace(S_min, S_max, 200) 
-        true_solution_0 = pde.true_sol(S_plot_true_sol, 0)
-        true_solution_05 = pde.true_sol(S_plot_true_sol, 0.5)
-        true_solution_1 = pde.true_sol(S_plot_true_sol, 1)
+        # Plot the constructed solution at various times with colormap lines
+        S_plot_true_sol = np.linspace(S_min, S_max, 200)
+        times = [0, 0.25, 0.5, 0.75, 1]
+        cmap = matplotlib.colormaps['plasma']
+        colors = cmap(np.linspace(0, 0.8, len(times)))
         plt.figure(figsize=(10, 6))
-        plt.plot(S_plot_true_sol, true_solution_0, label='True Solution at t=0', color='blue')
-        plt.plot(S_plot_true_sol, true_solution_05, label='True Solution at t=0.5', color='orange')
-        plt.plot(S_plot_true_sol, true_solution_1, label='True Solution at t=1', color='green')
+        for i, t in enumerate(times):
+            color = colors[i]
+            true_sol = pde.true_sol(S_plot_true_sol, t)
+            plt.plot(S_plot_true_sol, true_sol, label=f'True Solution at t={t}', color=color, alpha=0.8)
         plt.title('True Solution of Black-Scholes PDE at various times')
         plt.xlabel('Stock Price S')
         plt.ylabel('Option Value')
