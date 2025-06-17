@@ -9,8 +9,8 @@ from fem_solver import FEMSolver
 from black_scholes_pde import *
 
 # Flags to control which parts of the code to run
-COMPUTE_EXAMPLE_1 = False
-COMPUTE_EXAMPLE_2 = False
+COMPUTE_EXAMPLE_1 = True
+COMPUTE_EXAMPLE_2 = True
 COMPUTE_ANALYTICAL = True
 # The convergence study is computationally expensive, so it can be disabled
 COMPUTE_CONVERGENCE_STUDY = True
@@ -402,7 +402,7 @@ if __name__ == "__main__":
     ##########################
     if COMPUTE_ANALYTICAL:
         # Parameters for the true Black-Scholes PDE
-        S_min = 0.0
+        S_min = 0.01
         S_max = 300.0
         K = 100.0
         r = 0.04
@@ -417,10 +417,10 @@ if __name__ == "__main__":
         
         # Run convergence study to see the error vs. h curve
         if COMPUTE_CONVERGENCE_STUDY:
-            element_counts = [200 * 2**i for i in range(1, 4)]
+            element_counts = [200 * 2**i for i in range(1, 5)]
             h_values = [(S_max - S_min) / e for e in element_counts]
             timesteps_per_element = [int(np.ceil(T / (h**2))) for h in h_values]
-            convergence_errors = convergence_study(pde, element_counts, timesteps_per_element, numb_quad_points=50)
+            convergence_errors = convergence_study(pde, element_counts, timesteps_per_element, numb_quad_points=20)
 
         print("\n" + "="*30)
         print("ANALYSIS COMPLETE FOR PART 2")
