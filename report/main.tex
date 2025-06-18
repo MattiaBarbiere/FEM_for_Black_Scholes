@@ -195,7 +195,7 @@ is a norm in the Hilbert space \( V \) and we have the following Poincaré inequ
 
 \section{Question A}
 \begin{df}\label{def:a}
-    For $u \in \czero$ and $v \in V$ we define the following bilinear form
+    For $u \in \czero$ and $v \in V$ define the following bilinear form
     \begin{equation*}
         a(u,v) := \auv
     \end{equation*}
@@ -212,11 +212,11 @@ is a norm in the Hilbert space \( V \) and we have the following Poincaré inequ
     \begin{equation*}
         \intS{v \dtu} - \intS{\sigmafrac S^2  v  \dSSu } - \intS{r S v \dSu} + \intS{r  u  v} = 0.
     \end{equation*}
-    We now apply \Cref{thm:by_parts} to the second term. Thus we are left with
+    We now apply \Cref{thm:by_parts} to the second term resulting in
     \begin{equation*}
         \intS{v \dtu} - \sigmafrac \left[ \left. \left[S^2 v \dSu \right] \right|_{\partial\Omega} - \intS{\dS{(S^2v)} \dSu}\right] - \intS{r S v \dSu} + \intS{r  u  v} = 0.
     \end{equation*}
-    On the boundary we have that
+    On the boundary
     \begin{align*}
         (S_{min})^2 v(S_{min}) \dSu(S_{min}, t) &= 0 \text{ because of the boundary condition } \dSu(S_{min}, t) = 0\\
         (S_{max})^2 v(S_{max}) \dSu(S_{max}, t) &= 0 \text{ because of the boundary condition } v(S_{max}) = 0
@@ -287,7 +287,7 @@ is a norm in the Hilbert space \( V \) and we have the following Poincaré inequ
 \end{prop}
 
 \section{Question B}
-Before answering this question I present a useful algebraic identity
+Before answering this question observe the a useful lemma.
 \begin{lemma}\label{lemma_alg_id_and_ineq}
     For any integrable functions $f, g$ we have that
     \begin{equation*}
@@ -317,32 +317,32 @@ Before answering this question I present a useful algebraic identity
         \end{align*}
 \end{lemma}
 \begin{proof}
-    Recall the variational form of the problem as shown in \Cref{prop:variational_form}
-    \begin{align*}
-        &\left( \dtu, v\right) + a(u,v) = \\
-        &= \intS{v \dtu} + \auv = 0.
-    \end{align*}
-    We aim to discretize in time only. Using finite difference for approximating the derivative and replacing $u$ with $\theta u^{j} + (1- \theta) u^{j-1}$
-     \begin{align*}
-        &\intSlong{\frac{u^{j} - u^{j-1}}{\Delta t}  v} + \\
-        &+\sigmafrac \intS{S^2 \left(\dS{\left(\theta u^{j} + (1- \theta) u^{j-1} \right)}\right) \dSv} + \\
-        &+ (\sigma^2 - r) \intS{S v \dS{\left(\theta u^{j} + (1- \theta) u^{j-1} \right)}} + \\
-        &+r \intS{\left(\theta u^{j} + (1- \theta) u^{j-1} \right)v} =\\
-        &=0.
-        \end{align*}
+    The result is immediate after recalling the variational form of the problem as shown in \Cref{prop:variational_form} after using finite difference for approximating the derivative and replacing $u$ with $\theta u^{j} + (1- \theta) u^{j-1}$. \qedhere
+    % \begin{align*}
+    %     &\left( \dtu, v\right) + a(u,v) = \\
+    %     &= \intS{v \dtu} + \auv = 0.
+    % \end{align*}
+    
+     % \begin{align*}
+     %    &\intSlong{\frac{u^{j} - u^{j-1}}{\Delta t}  v} + \\
+     %    &+\sigmafrac \intS{S^2 \left(\dS{\left(\theta u^{j} + (1- \theta) u^{j-1} \right)}\right) \dSv} + \\
+     %    &+ (\sigma^2 - r) \intS{S v \dS{\left(\theta u^{j} + (1- \theta) u^{j-1} \right)}} + \\
+     %    &+r \intS{\left(\theta u^{j} + (1- \theta) u^{j-1} \right)v} =\\
+     %    &=0.
+     %    \end{align*}
 \end{proof}
-Before answering the question I introduce some useful definition and lemmas.
+With the goal of applying the Lax-Milgram lemma \Cref{lemma:lax_mil} let us make the following observations.
 
 
 \begin{df}\label{def:b}
-    For $v,w \in V$ and $\Delta t \in \mathbb{R}$ define the bilinear form $b(v, w)$ as
+    For $v,w \in V$ and $\Delta t \in \mathbb{R}$, define the bilinear form $b(v, w)$ as
     \begin{equation*}
         b(v, w) := \intS{v\,w} + \Delta t\,a(v,w)
     \end{equation*}
 \end{df}
 
 \begin{lemma}\label{lemma:b_lax_assump}
-    Assume $\Delta t \leq \frac{1}{2\alpha}$ where $\alpha$ is defined in \Cref{prop:ineq_a}. Then for any $v,w \in V$ the bilinear form $b(\cdot, \cdot)$ defined in \Cref{def:b} satisfies
+    Assume $0<\Delta t \leq \frac{1}{2\alpha}$ where $\alpha$ is defined in \Cref{prop:ineq_a}. Then for any $v,w \in V$ the bilinear form $b(\cdot, \cdot)$ defined in \Cref{def:b} satisfies
     \begin{align*}
         & b(v,w) \leq M \| v\|_V \| w\|_V \quad \text{ (Continuity) }\\
         &b(v,v) \geq \beta \| v\|_V^2 \qquad \hspace{6mm} \text{ (Coercivity) }
@@ -353,28 +353,24 @@ Before answering the question I introduce some useful definition and lemmas.
     By definition of $b(v, w)$ we have that
     \begin{align*}
         b(v,w) &= \intS{v\,w} + \Delta t\,a(v,w)\\
-        &= \intS{v\,w} + \aform{v}{w}.
+        &= \intS{v\,w} + \Delta t\, \left[\aform{v}{w}\right].
     \end{align*}
-    Using Hölder's inequality multiply times and the definition of the seminorm, this can all be bounded by
+    Using Hölder's inequality multiple times and the definition of the seminorm, this can all be bounded by
     \begin{align*}
-        b(v,w)  &\leq \normsq{v}\normsq{w} + \sigmafrac\seminormsq{v}\seminormsq{w} + (\sigma^2 - r ) \seminormsq{v}\normsq{w} + r \normsq{v} \normsq{w}\\
-        &\leq (1+r)\normsq{v} \normsq{w}+ \sigmafrac\seminormsq{v}\seminormsq{w} + \left|\sigma^2 - r\right| \seminormsq{v}\normsq{w}.
+        b(v,w)  &\leq \normsq{v}\normsq{w} + \Delta t\, \left[ \sigmafrac\seminormsq{v}\seminormsq{w} + (\sigma^2 - r ) \seminormsq{v}\normsq{w} + r \normsq{v} \normsq{w}\right]\\
+        &\leq (1+ \Delta t \,r)\normsq{v} \normsq{w} + \Delta t\, \left[\sigmafrac\seminormsq{v}\seminormsq{w} + \left|\sigma^2 - r\right| \seminormsq{v}\normsq{w}\right].
     \end{align*}
-    As $v,w \in V$, by the definition of the space $V$ we have that $\seminormsq{v}, \seminormsq{w} < + \infty$ thus, as the above equation is finite, there must exist an $M >0$ such that
+    As $v,w \in V$, by the definition of the space $V$ we have that $\seminormsq{v}, \seminormsq{w} < + \infty$ and $\normsq{v}, \normsq{w} < + \infty$ thus, as the above quantity is finite, there must exist a $M >0$ such that
     \begin{equation*}
         b(v,w)  \leq M \| v\|_V \| w\|_V.
     \end{equation*}
     For coercivity $b(v, v)$ can be bounded by below by
     \begin{align*}
-        b(v, v) &= \normsq{v} + \Delta t\, a(v,v) \geq \normsq{v} + \Delta t\, a(v,v)\\
-        & \geq \normsq{v} + \Delta t\, \left( \frac{\sigma^2}{4} \seminormsq{v} - \alpha \normsq{v} \right) \\
-        &= \left(1 - \Delta t \, \alpha  \right) \normsq{v} +\Delta t\, \frac{\sigma^2}{4} \seminormsq{v}
+        b(v, v) &= \normsq{v} + \Delta t\, a(v,v) \geq \normsq{v} + \Delta t\, \left( \frac{\sigma^2}{4} \seminormsq{v} - \alpha \normsq{v} \right) = \left(1 - \Delta t \, \alpha  \right) \normsq{v} +\Delta t\, \frac{\sigma^2}{4} \seminormsq{v}
     \end{align*}
     where the second inequality comes \Cref{prop:ineq_a}. By assumption we have that $\Delta t \leq \frac{1}{2\alpha}$ and hence $\left(1 - \Delta t \, \alpha  \right) \geq \frac{1}{2}$ giving
     \begin{align*}
-        b(v, v) &\geq \frac{1}{2}\normsq{v} +\Delta t\, \frac{\sigma^2}{4} \seminormsq{v}\\
-        & \geq \min\left(\frac{1}{2}, \Delta t\,\frac{\sigma^2}{4}\right) \left( \normsq{v} +  \seminormsq{v}\right)\\
-        &= \beta \| v\|_V^2
+        b(v, v) &\geq \frac{1}{2}\normsq{v} +\Delta t\, \frac{\sigma^2}{4} \seminormsq{v} \geq \min\left(\frac{1}{2}, \Delta t\,\frac{\sigma^2}{4}\right) \left( \normsq{v} +  \seminormsq{v}\right)= \beta \| v\|_V^2
     \end{align*}
     by taking $\beta = \min\left(\frac{1}{2}, \Delta t\,\frac{\sigma^2}{4}\right) > 0$. \qedhere
 \end{proof}
@@ -400,16 +396,16 @@ Before answering the question I introduce some useful definition and lemmas.
     \begin{equation*}
         \intS{u^{1}v} + \Delta t \,a(u^{1},v) = \intS{u^{0}v}.
     \end{equation*}
-    and as $u^0$ is known and thus this is equivalent to 
+    and as $u^0$ is known this is equivalent to 
     \begin{equation}\label{eq:base_case}
         b(u^{1}, v) = F(v)
     \end{equation}
-    by \Cref{def:b}. Invoking the Lax-Milgram Lemma \Cref{lemma:lax_mil} and \Cref{lemma:b_lax_assump} we conclude that there exists a unique $u^1$ solving \Cref{eq:base_case}.\\
-    \textbf{Induction case: } For a general value of $j$ we have, assume that for $j-1$ the problem is well posed. Then this implies that $u^{j-1}$ exists and is unique. For this reason we can write the problem as
+    by \Cref{def:b} and $F(v)=\intS{u^{0}v}$ which is bounded and continuous. Invoking the Lax-Milgram lemma (see \Cref{lemma:lax_mil}) and \Cref{lemma:b_lax_assump} we conclude that there exists a unique $u^1$ solving \Cref{eq:base_case}.\\
+    \textbf{Induction case: } For a general value of $j$, assume that for $j-1$ the problem is well posed. Then this implies that $u^{j-1}$ exists and is unique. For this reason we can write the problem as
     \begin{equation*}
         b(u^{j},v)=\intS{u^{j}v} + \Delta t \,a(u^{j},v) = \intS{u^{j-1}v} = F(v)
     \end{equation*}
-    and as $u^{j-1}$ is fixed. The conclusion comes once again by the Lax-Milgram Lemma \Cref{lemma:lax_mil} and \Cref{lemma:b_lax_assump}, proving that the problem is well posed for all $j$. \qedhere
+     as $u^{j-1}$ is fixed. The conclusion comes once again by the Lax-Milgram lemma \Cref{lemma:lax_mil} and \Cref{lemma:b_lax_assump}, proving that the problem is well posed for all $j$. \qedhere
     
     
 \end{proof}
@@ -436,7 +432,7 @@ Before answering the question I introduce some useful definition and lemmas.
     \end{equation*}
     Next we use the inequality in \Cref{lemma_alg_id_and_ineq} using $f = u^{j}$ and $g =u^{j-1}$
     \begin{equation*}
-        \frac{1}{2}\left( \normsq{u^{j+1}} - \normsq{u^{j}} \right) + \Delta t \,a(u^{j+1},u^{j+1}) \leq 0.
+        \frac{1}{2}\left( \normsq{u^{j}} - \normsq{u^{j-1}} \right) + \Delta t \,a(u^{j},u^{j}) \leq 0.
     \end{equation*}
     After multiplying by $2$ we can invoke \Cref{prop:ineq_a} and we are left with
     \begin{equation*}
@@ -461,9 +457,9 @@ Before answering the question I introduce some useful definition and lemmas.
 
 
 \section{Question C}
-This section the finite element method is employed to solve the Black-Scholes equation. \Cref{sec:constructed_cos} uses a constructed solution with a non-zero right-hand side while \Cref{sec:true_sol} solve the PDE explained in \Cref{def:problem}. Lastly \Cref{appendix:extra} presents a much simpler constructed solution which nevertheless gives similar conclusions as \Cref{sec:constructed_cos}. 
+This section the finite element method is employed to solve the Black-Scholes equation. In \Cref{sec:constructed_cos} a constructed solution with a non-zero right-hand side is solved while \Cref{sec:true_sol} solves the PDE explained in \Cref{def:problem}. 
 \subsection{Constructed solution}\label{sec:constructed_cos}
-For this constructed problem the parameters were take to be: $S_{min} = 3, S_{max}=10, r=0.04, \sigma = 0.2,$ and $T=1$ Let us construct a solution by adapting the right-hand side and the initial conditions. One criterial that this solution must fulfil is that it must satisfy the boundary conditions given in \Cref{def:problem}. As such, the chosen solution is
+For the constructed problem the parameters are taken to be: $S_{min} = 3, S_{max}=10, r=0.04, \sigma = 0.2,$ and $T=1$ Let us construct a solution by adapting the right-hand side and the initial conditions. The constructed solution is taken to be
 \begin{equation}\label{eq:constructed_cos}
     u(S,t)=\left[\cos\left(\phi(S)\right)-1\right]e^{-\sin(t)} \quad \text{ where } \quad \phi(S)=0.4(S-3)(S-10).
 \end{equation}
@@ -476,7 +472,7 @@ A visualization of this function is given in \Cref{fig:plot_cos} for some values
 % \end{align}
 
 \begin{problem}[Constructed Black \& Scholes Equation]\label{def:constructed_cos}
-Take $u(S,t)$ and $\phi$ as given in \Cref{eq:constructed_cos}. Let \(\Omega = (3, 10)\), \(\sigma = 0.2\) and \(r=0.04\). The function $u(S,t)$ fro $S \in \Omega$ and $t \in [0,1]$ satisfies the Black \& Scholes equation:
+Take $u(S,t)$ and $\phi$ as given in \Cref{eq:constructed_cos}. Let \(\Omega = (3, 10)\), \(\sigma = 0.2\) and \(r=0.04\). The function $u(S,t)$ for $S \in \Omega$ and $t \in [0,1]$ satisfies the Black \& Scholes equation:
 \[
 \begin{cases}
 \partial_t u - \frac{\sigma^2}{2} S^2 \partial_{SS} u - r S \partial_S u + r u = f(S,t) & \text{in } \Omega \times (0, T], \\
@@ -497,6 +493,13 @@ where right-hand side $f(S,t)$ is given by
     \label{fig:plot_cos}
 \end{figure}
 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\linewidth]{code/images/fem_vs_analytical_BlackScholesConstructedCos.png}
+    \caption{Analytical solution (blue) versus interpolated finite element solution (dashed red) for various methods at time $t=1$ when tasked to solve \Cref{def:constructed_cos}. The PDE was solved with $h =0.07$ and $\Delta t = 3.33 \cdot 10^{-3} $. First and second row correspond to P1 and P2 finite elements respectively. First and second column correspond to backwards Euler and Crank-Nicolson's method respectively. In the top left the maximum errors is presented for all four plots.}
+    \label{fig:fem_vs_true_cos}
+\end{figure}
+
 The right-hand side and initial conditions were constructed starting from $u(S,t)$, however the boundary conditions given by \Cref{def:problem} were imposed a priori thus, to make sure \Cref{def:constructed_cos} is a valid solution, we need to verify that $u(S,t)$ agrees with the given boundary conditions.
 \begin{lemma}
     The solution $u(S,t)$ proposed in \Cref{eq:constructed_cos} agrees with the boundary conditions stated in \Cref{def:problem}.
@@ -509,14 +512,7 @@ The right-hand side and initial conditions were constructed starting from $u(S,t
     which proves that $u(S,t)$ satisfies the boundary conditions.
 \end{proof}
 
-As a initial visual check \Cref{fig:fem_vs_true_cos} illustrates the analytical versus the (interpolated) solution given by the finite element solver. A visual inspection shows that all methods provide a reasonable approximation of the solution. There is, nonetheless, some deviationn with P2 Crank-Nicolson provided the best approximation.
-
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=\linewidth]{code/images/fem_vs_analytical_BlackScholesConstructedCos.png}
-    \caption{Analytical solution (blue) versus interpolated finite element solution (dashed red) for various methods at time $t=1$ when tasked to solve \Cref{def:constructed_cos}. The PDE was solved with $h =0.07$ and $\Delta t = 3.33 \cdot 10^{-3} $. First and second row correspond to P1 and P2 finite elements respectively. First and second column correspond to backwards Euler and Crank-Nicolson's method respectively. In the top left the maximum errors is presented for all four plots.}
-    \label{fig:fem_vs_true_cos}
-\end{figure}
+As a initial visual check \Cref{fig:fem_vs_true_cos} illustrates the analytical versus the (interpolated) solution given by the finite element solver. A visual inspection shows that all methods provide a reasonable approximation of the solution. There is, nonetheless, some visual deviation for all methods except P2 Crank-Nicolson which provides the best approximation.
 
 \begin{remark}
     To produce \Cref{fig:fem_vs_true_cos} the solution points given by the finite element solver where interpolated using the \href{https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html}{\texttt{scipy.interpolate.interp1d}} function. Nonetheless, all errors throughout the report are computed without interpolation to avoid any interpolation errors contaminating the true errors of the methods.
@@ -532,7 +528,7 @@ As a initial visual check \Cref{fig:fem_vs_true_cos} illustrates the analytical 
 % \end{figure}
 
 \subsubsection{Convergence study of the constructed solution}
-The final experiment on the artificial solution was to perform a convergence study. For the results to be meaningful, it is important that the time discretization error does not dominate. To ensure this, the convergence study was performed using element size $h$ and time interval $\Delta t$ as shown in \Cref{tab:orders}.\\
+The final experiment on the artificial solution was to perform a convergence study. For the results to be meaningful, it is important that the time discretization error does not dominate. To ensure this, the convergence study was performed using element size $h$ and time interval $\Delta t$ as shown in \Cref{tab:orders}. Performing the experiment results in \Cref{fig:conv_cos}. The plot clearly illustrates that both Crank-Nicolson and backwards Euler have a convergence order of $2$ when using P1 finite elements and order $4$ when working with P2 finite elements. \\
 
 \begin{table}[h!]
 \centering
@@ -550,12 +546,11 @@ P2 & $\Delta t \approx h^3$ & $\Delta t \approx h^{3/2}$ \\
 \end{table}
 
 
-Now it is possible to isolate the convergence as a function of the element size $h$. Performing the experiment results in \Cref{fig:conv_cos}. The plot clearly illustrates that both Crank-Nicolson and backwards Euler have a convergence order of $2$ when using P1 finite elements and order $4$ when working with P2 finite elements. 
 
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.75\linewidth]{code/images/convergence_study_BlackScholesConstructedCos.png}
+    \includegraphics[width=0.7\linewidth]{code/images/convergence_study_BlackScholesConstructedCos.png}
     \caption{Convergence study for all four methods when solving \Cref{def:constructed_cos}.}
     \label{fig:conv_cos}
 \end{figure}
@@ -566,7 +561,7 @@ With the results presented in the previous section, the next step is to perform 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=\linewidth]{code/images/fem_vs_analytical_BlackScholesTrue.png}
-    \caption{Analytical solution (blue) versus interpolated finite element solution (dashed red) for various methods at time $t=1$ when tasked to solve \Cref{def:problem}. The PDE was solved with $h =0.5$ and $\Delta t = 0.5 $. First and second row correspond to P1 and P2 finite elements respectively. First and second column correspond to backwards Euler and Crank-Nicolson's method respectively. In the top left the maximum errors is presented for all four plots.}
+    \caption{Analytical solution (blue) versus interpolated finite element solution (dashed red) for various methods at time $t=5$ when tasked to solve \Cref{def:problem}. The PDE was solved with $h =0.5$ and $\Delta t = 0.5 $. First and second row correspond to P1 and P2 finite elements respectively. First and second column correspond to backwards Euler and Crank-Nicolson's method respectively. In the top left the maximum errors is presented for all four plots.}
     \label{fig:fem_vs_true_true}
 \end{figure}
 
@@ -574,12 +569,13 @@ With the results presented in the previous section, the next step is to perform 
 Recalling \Cref{tab:orders}, in this section a very similar convergence study is performed. The results are shown in \Cref{fig:conv_true}. 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.75\linewidth]{code/images/convergence_study_BlackScholesTrue.png}
-    \caption{Convergence study for all four methods when solving \Cref{def:constructed_cos}.}
+    \includegraphics[width=0.7\linewidth]{code/images/convergence_study_BlackScholesTrue.png}
+    \caption{Convergence study for all four methods when solving \Cref{def:problem}.}
     \label{fig:conv_true}
 \end{figure}
 
-The first striking observation is that the solver struggles a lot more to solve this problem than \Cref{def:constructed_cos}. There are many reasons why this might be. First the space $\Omega$ and the final time $T$ are much large, leaving way for numerical errors to appear and propagate. Secondly, and more importantly, if the lack of smoothness in the initial condition of \Cref{def:problem}. Indeed this initial has a problematic point at $S=K$. This leading to an overall suboptimal outcome of the finite element solver. There are some possible solutions to this problem. The first candidate is to use higher order finite elements. While being costly, this is likely to help by providing a better approximation and reducing any errors when using P1 or P2 elements. Indeed, one pattern visible in \Cref{fig:conv_true} is that for a given $h$ the P2 finite elments
+The first striking observation is that the solver struggles a lot more to solve this problem than \Cref{def:constructed_cos}. There are many reasons why this might be. First the space $\Omega$ and the final time $T$ are much large, leaving way for numerical errors to appear and propagate. Secondly, and more importantly, is the lack of smoothness in the initial condition of \Cref{def:problem}. Indeed this initial function has a problematic point at $S=K$. This leads to an overall suboptimal outcome of the finite element solver because some regularity assumptions fail. 
+There are nonetheless some possible ways to mitigate this. The first candidate is to use higher order finite elements. This is likely to help by providing a better approximation and reducing any errors when using P1 or P2 elements. Secondly, other methods beside Crank-Nicolson and backwards Euler might prove to be more beneficial in this case, giving a possibly better and more stable convergence. Finally, [2] provides important insights into other potential improvements, suggesting more advanced techniques and approaches.
 
 
 \newpage
@@ -591,8 +587,7 @@ The first striking observation is that the solver struggles a lot more to solve 
 
 
 \appendix
-\section{Green's formulas}
-In this appendix we present some useful formulas.
+\section{Useful results}
 
 % \begin{thm}[Gauss--Ostrogradsky's formula]\label{thm:div}
 % Let $\Omega \subset \mathbb{R}^n$ be a bounded set with $\partial\Omega \subset C^1$. For $u \in C^1(\bar{\Omega})$,
@@ -638,8 +633,6 @@ All previous identities are valid also if the boundary $\partial\Omega$ is only 
     \end{equation*}
     admits a unique solution. Moreover, $\| u\|_V \leq \frac{1}{\beta} \| F\|_{V'}$.
 \end{lemma}
-
-\section{Additional constructed solution}\label{appendix:extra}
 
     
 
