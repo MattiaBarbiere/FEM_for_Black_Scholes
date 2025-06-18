@@ -45,6 +45,7 @@
 %Definitions
 %\theoremstyle{definition}
 \newtheorem{df}{Definition}[section]
+\newtheorem{problem}{Problem}[section]
 \newtheorem{remark}{Remark}[section]
 \newtheorem{ex}{Example}[section]
 %Theorems and Lemmas
@@ -159,7 +160,7 @@
 \pagenumbering{arabic}
 
 Let us define the following quantities
-\begin{df}[Black \& Scholes Equation for European Put Option]\label{def:problem}
+\begin{problem}[Black \& Scholes Equation for European Put Option]\label{def:problem}
 Consider the Black \& Scholes equation for the value \( u(S, t) \) of an European Put option:
 \[
 \begin{cases}
@@ -171,7 +172,7 @@ where \(\Omega = (S_{\min}, S_{\max})\), \(\sigma\) and \(r\) are strictly posit
 \[
 \partial_S u(S_{\min}, t) = u(S_{\max}, t) = 0.
 \]
-\end{df}
+\end{problem}
 
 \begin{df}[Weighted Sobolev Space]
 We introduce the weighted Sobolev space \( V \):
@@ -384,11 +385,7 @@ Before answering the question I introduce some useful definition and lemmas.
 \begin{proof}
     Using $\theta = 1$ in the result of \Cref{lemma:semi_discrete_prob} leaves us with
     \begin{align*}
-        &\intSlong{\frac{u^{j} - u^{j-1}}{\Delta t}  v} + \\
-        &+\sigmafrac \intS{S^2 \dS{\left(u^{j}\right)} \dSv} + \\
-        &+ (\sigma^2 - r) \intS{S v \dS{\left(u^{j}\right)}} + \\
-        &+r \intS{u^{j}v} =\\
-        &=0.
+        &\intSlong{\frac{u^{j} - u^{j-1}}{\Delta t}  v} +\sigmafrac \intS{S^2 \dS{\left(u^{j}\right)} \dSv} + (\sigma^2 - r) \intS{S v \dS{\left(u^{j}\right)}} + r \intS{u^{j}v} =0.
         \end{align*}
     Using \Cref{def:a} we can simplify this as
     \begin{equation*}
@@ -427,11 +424,7 @@ Before answering the question I introduce some useful definition and lemmas.
 \begin{proof}
     Using $\theta = 1$ and $v = u^j$ in the result of \Cref{lemma:semi_discrete_prob} leaves us with
     \begin{align*}
-        &\intSlong{\frac{u^{j} - u^{j-1}}{\Delta t}  u^{j}} + \\
-        &+\sigmafrac \intS{S^2 \dS{\left(u^{j}\right)} \dS{u^{j}}} + \\
-        &+ (\sigma^2 - r) \intS{S u^{j} \dS{\left(u^{j}\right)}} + \\
-        &+r \intS{(u^{j})^2} =\\
-        &=0.
+        &\intSlong{\frac{u^{j} - u^{j-1}}{\Delta t}  u^{j}} +\sigmafrac \intS{S^2 \dS{\left(u^{j}\right)} \dS{u^{j}}} + (\sigma^2 - r) \intS{S u^{j} \dS{\left(u^{j}\right)}} + r \intS{(u^{j})^2} =0.
         \end{align*}
     which can be rewritten as
     \begin{equation}\label{eq:discret_time_and_a_u_j+1}
@@ -464,68 +457,85 @@ Before answering the question I introduce some useful definition and lemmas.
    \end{align*}
    We conclude by moving $\normsq{u^{0}}$ to the right hand side.\qedhere
 \end{proof}
+
+
+
 \section{Question C}
-\subsection{Constructed solution}
-Firstly, let us construct a solution by adapting the right-hand side and the initial conditions. One criterial that this solution must fulfil is that it must satisfy the boundary conditions given in \Cref{def:problem}. As such the chosen solution was
+This section the finite element method is employed to solve the Black-Scholes equation. \Cref{sec:constructed_cos} uses a constructed solution with a non-zero right-hand side while \Cref{sec:true_sol} solve the PDE explained in \Cref{def:problem}. Lastly \Cref{appendix:extra} presents a much simpler constructed solution which nevertheless gives similar conclusions as \Cref{sec:constructed_cos}. 
+\subsection{Constructed solution}\label{sec:constructed_cos}
+For this constructed problem the parameters were take to be: $S_{min} = 3, S_{max}=10, r=0.04, \sigma = 0.2,$ and $T=1$ Let us construct a solution by adapting the right-hand side and the initial conditions. One criterial that this solution must fulfil is that it must satisfy the boundary conditions given in \Cref{def:problem}. As such, the chosen solution is
 \begin{equation}\label{eq:constructed_cos}
     u(S,t)=\left[\cos\left(\phi(S)\right)-1\right]e^{-\sin(t)} \quad \text{ where } \quad \phi(S)=0.4(S-3)(S-10).
 \end{equation}
-Consequentially the initial condition $u_0$ and the right-hand side, denoted $f$, are
-\begin{align*}
-u_0(S)&=\cos\left(\phi(S)\right)-1\\[10pt]
-f(S, t) &=  u(S,t) \left(-\cos (t)\right) + \\ 
-&+ e^{-\sin (t)} \left\{- \frac{1}{2} \sigma^2 S^2 \left[ -0.16 (2S-13)^2 \cos(\phi(S)) - 0.8 \sin(\phi(S)) \right] - r S \left[ -0.4 (2S - 13) \sin(\phi(S)) \right] \right\}+ \\
-&+ r u(S, t).
-\end{align*}
+A visualization of this function is given in \Cref{fig:plot_cos} for some values of $t \in [0,1]$. With this solution in mind, the problem to tackle is the following.
+% \begin{align}
+% u_0(S)&=\cos\left(\phi(S)\right)-1 \label{eq:initial_cos} \\[10pt]
+% f(S, t) &=  u(S,t) \left(-\cos (t)\right) +  \label{eq:source_cos} \\
+% &+ e^{-\sin (t)} \left\{- \frac{1}{2} \sigma^2 S^2 \left[ -0.16 (2S-13)^2 \cos(\phi(S)) - 0.8 \sin(\phi(S)) \right] - r S \left[ -0.4 (2S - 13) \sin(\phi(S)) \right] \right\}+  \nonumber \\
+% &+ r u(S, t).\nonumber
+% \end{align}
 
-The following lemma proves that this solution satisfies the boundary conditions.
+\begin{problem}[Constructed Black \& Scholes Equation]\label{def:constructed_cos}
+Take $u(S,t)$ and $\phi$ as given in \Cref{eq:constructed_cos}. Let \(\Omega = (3, 10)\), \(\sigma = 0.2\) and \(r=0.04\). The function $u(S,t)$ fro $S \in \Omega$ and $t \in [0,1]$ satisfies the Black \& Scholes equation:
+\[
+\begin{cases}
+\partial_t u - \frac{\sigma^2}{2} S^2 \partial_{SS} u - r S \partial_S u + r u = f(S,t) & \text{in } \Omega \times (0, T], \\
+u(S, 0) = u_0(S) = \cos\left(\phi(S)\right)-1,
+\end{cases}
+\]
+where right-hand side $f(S,t)$ is given by
+\begin{align}
+    f(S, t) &=  u(S,t) \left(-\cos (t)\right) + \\
+    &+ e^{-\sin (t)} \left\{- \frac{1}{2} \sigma^2 S^2 \left[ -0.16 (2S-13)^2 \cos(\phi(S)) - 0.8 \sin(\phi(S)) \right] - r S \left[ -0.4 (2S - 13) \sin(\phi(S)) \right] \right\}+  \nonumber \\
+    &+ r u(S, t).\nonumber
+\end{align}
+\end{problem}
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.75\linewidth]{code/images/true_constructed_cos.png}
+    \caption{Analytical solution $u(S,t)$ given by \Cref{eq:constructed_cos} as a function of $S$ for values of $t \in \{0, 0.25, 0.5, 0.75, 1\}$.}
+    \label{fig:plot_cos}
+\end{figure}
+
+The right-hand side and initial conditions were constructed starting from $u(S,t)$, however the boundary conditions given by \Cref{def:problem} were imposed a priori thus, to make sure \Cref{def:constructed_cos} is a valid solution, we need to verify that $u(S,t)$ agrees with the given boundary conditions.
 \begin{lemma}
     The solution $u(S,t)$ proposed in \Cref{eq:constructed_cos} agrees with the boundary conditions stated in \Cref{def:problem}.
 \end{lemma}
 \begin{proof}
     By constructed we have that $\phi(3)=\phi(10)=0$. Thus $u(10,t)=\left[\cos\left(0\right)-1\right]e^{-\sin(t)} = 0$. Furthermore, the derivative with respect to $S$ of $u(S,t)$ evaluated at $S = 3$ is
     \begin{equation*}
-        \dSu(3, t) = \left[-0.4 (2S - 13) \sin(\phi(3))\right]e^{-\sin (t)} = \left[-0.4 (2S - 13) \sin(0)\right]e^{-\sin (t)} = 0
+        \dSu(3, t) = \left[-0.4 (6 - 13) \sin(\phi(3))\right]e^{-\sin (t)} = 2.8 \sin(0)e^{-\sin (t)} = 0
     \end{equation*}
     which proves that $u(S,t)$ satisfies the boundary conditions.
 \end{proof}
-\Cref{fig:plot_cos} plots the function $u(S,t)$ as a function of $S$ for some value of $t \in [0,1]$.
+
+As a initial visual check \Cref{fig:fem_vs_true_cos} illustrates the analytical versus the (interpolated) solution given by the finite element solver. A visual inspection shows that all methods provide a reasonable approximation of the solution. There is, nonetheless, some deviationn with P2 Crank-Nicolson provided the best approximation.
+
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.75\linewidth]{code/images/true_constructed_cos.png}
-    \caption{.}
-    \label{fig:plot_cos}
+    \includegraphics[width=\linewidth]{code/images/fem_vs_analytical_BlackScholesConstructedCos.png}
+    \caption{Analytical solution (blue) versus interpolated finite element solution (dashed red) for various methods at time $t=1$ when tasked to solve \Cref{def:constructed_cos}. The PDE was solved with $h =0.07$ and $\Delta t = 3.33 \cdot 10^{-3} $. First and second row correspond to P1 and P2 finite elements respectively. First and second column correspond to backwards Euler and Crank-Nicolson's method respectively. In the top left the maximum errors is presented for all four plots.}
+    \label{fig:fem_vs_true_cos}
 \end{figure}
-
-As a initial visual check \Cref{fig:plot_cos} illustrates the analytical versus the (interpolated) solution given by the finite element solver. All methods provide a reasonable approximation of the solution, with P2 Crank-Nicolson provided the best approximation.
 
 \begin{remark}
     To produce \Cref{fig:fem_vs_true_cos} the solution points given by the finite element solver where interpolated using the \href{https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html}{\texttt{scipy.interpolate.interp1d}} function. Nonetheless, all errors throughout the report are computed without interpolation to avoid any interpolation errors contaminating the true errors of the methods.
 \end{remark}
 
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=\linewidth]{code/images/fem_vs_analytical_BlackScholesConstructedCos.png}
-    \caption{.}
-    \label{fig:fem_vs_true_cos}
-\end{figure}
+% After illustrating that the solver was working the next step was to inspect close the errors. The metrics that were used to quantify errors were the $L^2$ and $L^\infty$ norms. The first step was to understand how these errors evolve over time. The idea is that there might be some errors that accumulate as time evolves. \Cref{fig:error_vs_time_cos} illustrates the $L^2$ and $L^\infty$ errors as a function of time for the methods in question. There is a slight increase in the errors as we get further away from $t=0$, however both norm are plotted in a logarithmic scale and thus the increase of the errors is small.
 
-After illustrating that the solver was working the next step was to inspect close the errors. The metrics that were used to quantify errors were the $L^2$ and $L^\infty$ norms. The first step was to understand how these errors evolve over time. \Cref{fig:error_vs_time_cos} illustrates the $L^2$ and $L^\infty$ errors as a function of time for the methods in question. There is a slight increase in the errors as we get further away from $t=0$, however both norm are plotted in a logarithmic scale and thus the increase of the errors is small.
-
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=\linewidth]{code/images/error_vs_time_BlackScholesConstructedCos.png}
-    \caption{.}
-    \label{fig:error_vs_time_cos}
-\end{figure}
+% \begin{figure}[!ht]
+%     \centering
+%     \includegraphics[width=\linewidth]{code/images/error_vs_time_BlackScholesConstructedCos.png}
+%     \caption{$L^\infty$ error (left) and $L^2$ error (right) over the full domain of $S \in (3,10)$ as a function of time $t \in [0,1]$ for all four methods. Notice that for the right plot the blue curve is almost identical to the green curve.}
+%     \label{fig:error_vs_time_cos}
+% \end{figure}
 
 \subsubsection{Convergence study of the constructed solution}
-The final experiment on the artificial solution was to perform a convergence study. For the results to be meaningful, it is important that the time discretization does not dominate. To ensure this, the convergence study was performed using element size $h$ and time interval $\Delta t$ as shown in \Cref{tab:orders}.
+The final experiment on the artificial solution was to perform a convergence study. For the results to be meaningful, it is important that the time discretization error does not dominate. To ensure this, the convergence study was performed using element size $h$ and time interval $\Delta t$ as shown in \Cref{tab:orders}.\\
 
 \begin{table}[h!]
 \centering
-
-\label{tab:orders}
 \begin{tabular}{|c|c|c|}
 \hline
  & Backwards Euler & Crank-Nicolson \\
@@ -535,24 +545,49 @@ P1 & $\Delta t \approx h^2$ & $\Delta t \approx h$ \\
 P2 & $\Delta t \approx h^3$ & $\Delta t \approx h^{3/2}$ \\
 \hline
 \end{tabular}
-\caption{Example Table}
+\caption{Chosen orders of $\Delta t$ as a function of $h$ for the four methods. The order of $\Delta t$ was chosen in such a way that the time discretization error does not dominate when performing the convergence study. The orders of $\Delta t$ were inspired from [1] and [2], and also validated experimentally.}
+\label{tab:orders}
 \end{table}
 
-Now it is possible to isolate the convergence as a function of the element size $h$. Performing the experiment results in \Cref{fig:conv_cos}. As expected when P1 was used the convergence order is close to order $2$ while when using P2 the convergence is close order $4$. 
+
+Now it is possible to isolate the convergence as a function of the element size $h$. Performing the experiment results in \Cref{fig:conv_cos}. The plot clearly illustrates that both Crank-Nicolson and backwards Euler have a convergence order of $2$ when using P1 finite elements and order $4$ when working with P2 finite elements. 
 
 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.75\linewidth]{code/images/convergence_study_BlackScholesConstructedCos.png}
-    \caption{.}
+    \caption{Convergence study for all four methods when solving \Cref{def:constructed_cos}.}
     \label{fig:conv_cos}
 \end{figure}
 
-\subsection{True solution}
+\subsection{True solution}\label{sec:true_sol}
+With the results presented in the previous section, the next step is to perform the same study on the analytical solution of \Cref{def:problem}. The parameters are chosen as: $S_{min}=0, S_{max}=300, K=100, r=0.04, \sigma =0.2, $ and $T = 5$. To begin \Cref{fig:fem_vs_true_true} illustrate the analytical solution when compared to the interpolated solution of the finite element solver. Visually it is clear that all the methods manage to capture the analytical solution. It is, however, important to point out that the maximum errors are indeed large than before. This will also be evident in the convergence study. 
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\linewidth]{code/images/fem_vs_analytical_BlackScholesTrue.png}
+    \caption{Analytical solution (blue) versus interpolated finite element solution (dashed red) for various methods at time $t=1$ when tasked to solve \Cref{def:problem}. The PDE was solved with $h =0.5$ and $\Delta t = 0.5 $. First and second row correspond to P1 and P2 finite elements respectively. First and second column correspond to backwards Euler and Crank-Nicolson's method respectively. In the top left the maximum errors is presented for all four plots.}
+    \label{fig:fem_vs_true_true}
+\end{figure}
 
 \subsubsection{Convergence study of the true solution}
+Recalling \Cref{tab:orders}, in this section a very similar convergence study is performed. The results are shown in \Cref{fig:conv_true}. 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.75\linewidth]{code/images/convergence_study_BlackScholesTrue.png}
+    \caption{Convergence study for all four methods when solving \Cref{def:constructed_cos}.}
+    \label{fig:conv_true}
+\end{figure}
+
+The first striking observation is that the solver struggles a lot more to solve this problem than \Cref{def:constructed_cos}. There are many reasons why this might be. First the space $\Omega$ and the final time $T$ are much large, leaving way for numerical errors to appear and propagate. Secondly, and more importantly, if the lack of smoothness in the initial condition of \Cref{def:problem}. Indeed this initial has a problematic point at $S=K$. This leading to an overall suboptimal outcome of the finite element solver. There are some possible solutions to this problem. The first candidate is to use higher order finite elements. While being costly, this is likely to help by providing a better approximation and reducing any errors when using P1 or P2 elements. Indeed, one pattern visible in \Cref{fig:conv_true} is that for a given $h$ the P2 finite elments
 
 
+\newpage
+\section*{References}
+\begin{itemize}
+    \item[] [1] Brenner, Susanne, and L. Ridgway Scott. \textit{The Mathematical Theory of Finite Element Methods}. 1st ed. vol. 15. New York, NY: Springer, 1994.
+    \item[] [2] Achdou, Y. and Pironneau, O., 2005. \textit{Computational methods for option pricing} (Vol. 30). Siam
+\end{itemize}
 
 
 \appendix
@@ -603,6 +638,8 @@ All previous identities are valid also if the boundary $\partial\Omega$ is only 
     \end{equation*}
     admits a unique solution. Moreover, $\| u\|_V \leq \frac{1}{\beta} \| F\|_{V'}$.
 \end{lemma}
+
+\section{Additional constructed solution}\label{appendix:extra}
 
     
 
