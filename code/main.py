@@ -10,8 +10,8 @@ from fem_solver import FEMSolver
 from black_scholes_pde import *
 
 # Flags to control which parts of the code to run
-COMPUTE_EXAMPLE_1 = True
-COMPUTE_EXAMPLE_2 = True
+COMPUTE_EXAMPLE_1 = False
+COMPUTE_EXAMPLE_2 = False
 COMPUTE_ANALYTICAL = True
 # The convergence study is computationally expensive, so it can be disabled
 COMPUTE_CONVERGENCE_STUDY = True
@@ -268,7 +268,9 @@ def convergence_study(
     errors = []
 
     for i in range(len(element_counts)):
-        print(f"Testing with {element_counts[i]} elements...")
+        h = h_values[i]
+        dt = pde.T / timesteps[i]
+        print(f"Testing with {element_counts[i]} elements: h={h:.4e}, dt={dt:.4e}")
         fem_solver = FEMSolver(
             pde,
             numb_elements=element_counts[i],
@@ -444,7 +446,7 @@ if __name__ == "__main__":
         
         # Run convergence study to see the error vs. h curve
         if COMPUTE_CONVERGENCE_STUDY:
-            element_counts = [200 * 2**i for i in range(0, 5)]
+            element_counts = [int(200 * 2**i) for i in range(-1, 4)]
             h_errors_dict = {}
             # P1 CN
             h1, e1 = convergence_study(pde, element_counts, schema='CN', element_type='P1', dt_h_power=1, dt_h_factor=1.0, numb_quad_points=5)
@@ -459,4 +461,4 @@ if __name__ == "__main__":
             h4, e4 = convergence_study(pde, element_counts, schema='BE', element_type='P2', dt_h_power=3, dt_h_factor=1.0, numb_quad_points=5)
             h_errors_dict['P2 BE'] = (h4, e4)
             plot_convergence_errors(h_errors_dict, filename=f"./code/images/convergence_study_{pde.__class__.__name__}.png")
-        
+
