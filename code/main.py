@@ -175,15 +175,6 @@ def test_fem_vs_analytical(pde: BaseBlackScholes,
         axes[i].set_ylabel('u(S, t)')
         axes[i].legend(loc=9)
         axes[i].grid(True, alpha=0.3)
-        
-        
-        # axes[i].text(
-        #     0.5, 0.05, f'Max Error: {final_max_error_for_plot:.4f}',
-        #     transform=axes[i].transAxes,
-        #     horizontalalignment='center',
-        #     verticalalignment='bottom',
-        #     bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8, )
-        # )
     
     plt.tight_layout()
     plt.savefig(f"./code/images/fem_vs_analytical_{pde.__class__.__name__}.png", dpi=300, bbox_inches='tight')

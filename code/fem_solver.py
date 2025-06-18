@@ -294,10 +294,8 @@ class FEMSolver:
         # BC are: du/dS(S_min, t) = 0, u(S_max, t) = 0
 
         # Left boundary: ∂u/∂S = 0 (natural BC, already satisfied)
-        # No modification needed for natural BC
         
-        # Right boundary: u(S_max, t) = 0 (essential BC)
-        # Modify last row/column
+        # Right boundary: u(S_max, t) = 0
         last_node = self.numb_nodes - 1
         
         # Convert to lil_matrix for efficient modification
