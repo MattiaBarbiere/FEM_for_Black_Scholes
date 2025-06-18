@@ -10,11 +10,22 @@ from fem_solver import FEMSolver
 from black_scholes_pde import *
 
 # Flags to control which parts of the code to run
-COMPUTE_EXAMPLE_1 = False
-COMPUTE_EXAMPLE_2 = False
+COMPUTE_EXAMPLE_1 = True
+COMPUTE_EXAMPLE_2 = True
 COMPUTE_ANALYTICAL = True
 # The convergence study is computationally expensive, so it can be disabled
 COMPUTE_CONVERGENCE_STUDY = True
+
+# Set font size for plots
+GLOBAL_FONT_SIZE = 18
+plt.rcParams.update({
+    'font.size': GLOBAL_FONT_SIZE,
+    'axes.titlesize': GLOBAL_FONT_SIZE,
+    'axes.labelsize': GLOBAL_FONT_SIZE,
+    'xtick.labelsize': GLOBAL_FONT_SIZE,
+    'ytick.labelsize': GLOBAL_FONT_SIZE,
+    'legend.fontsize': GLOBAL_FONT_SIZE
+})
 
 def assert_order_delta_t_vs_h2(pde, element_count, timesteps_per_element):
     """
@@ -153,20 +164,26 @@ def test_fem_vs_analytical(pde: BaseBlackScholes,
         # Compute the analytical solution at the final time
         analytical_plot = pde.true_sol(S_plot, final_time)
 
+        # Add max error to the plots
+        final_max_error_for_plot = np.max(np.abs(fem_plot - analytical_plot))
+
         # Plot the functions
         axes[i].plot(S_plot, analytical_plot, 'b-', label='Analytical', linewidth=2)
-        axes[i].plot(S_plot, fem_plot, 'r--', label='FEM', linewidth=2)
+        axes[i].plot(S_plot, fem_plot, 'r--', label='FEM (Max Error: {:.4f})'.format(final_max_error_for_plot), linewidth=2)
         axes[i].set_title(f'{label} at t={final_time:.2f}')
-        axes[i].set_xlabel('Stock Price S')
-        axes[i].set_ylabel('Option Value')
+        axes[i].set_xlabel('S')
+        axes[i].set_ylabel('u(S, t)')
         axes[i].legend(loc=9)
         axes[i].grid(True, alpha=0.3)
         
-        # Add max error to the plots
-        final_max_error_for_plot = np.max(np.abs(fem_plot - analytical_plot))
-        axes[i].text(0.05, 0.95, f'Max Error: {final_max_error_for_plot:.4f}', 
-                     transform=axes[i].transAxes, verticalalignment='top',
-                     bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
+        
+        # axes[i].text(
+        #     0.5, 0.05, f'Max Error: {final_max_error_for_plot:.4f}',
+        #     transform=axes[i].transAxes,
+        #     horizontalalignment='center',
+        #     verticalalignment='bottom',
+        #     bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8, )
+        # )
     
     plt.tight_layout()
     plt.savefig(f"./code/images/fem_vs_analytical_{pde.__class__.__name__}.png", dpi=300, bbox_inches='tight')
@@ -343,8 +360,8 @@ if __name__ == "__main__":
             true_sol = pde.true_sol(S_plot_true_sol, t)
             plt.plot(S_plot_true_sol, true_sol, label=f't={t}', color=color, alpha=0.8)
         plt.title('True Solution of Black-Scholes PDE at various times')
-        plt.xlabel('Stock Price S')
-        plt.ylabel('Option Value')
+        plt.xlabel('S')
+        plt.ylabel('u(S, t)')
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.savefig("./code/images/true_constructed_cos.png", dpi=300, bbox_inches='tight')
@@ -397,8 +414,8 @@ if __name__ == "__main__":
             true_sol = pde.true_sol(S_plot_true_sol, t)
             plt.plot(S_plot_true_sol, true_sol, label=f'True Solution at t={t}', color=color, alpha=0.8)
         plt.title('True Solution of Black-Scholes PDE at various times')
-        plt.xlabel('Stock Price S')
-        plt.ylabel('Option Value')
+        plt.xlabel('S')
+        plt.ylabel('u(S, t)')
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.savefig("./code/images/true_constructed_poly.png", dpi=300, bbox_inches='tight')
