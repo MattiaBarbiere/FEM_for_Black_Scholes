@@ -4,11 +4,10 @@ Finite Element Method (FEM) solver for a simple 1D European put option.
 import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import spsolve
+from tqdm import tqdm
 
 from black_scholes_pde import BaseBlackScholes
 from NAPDE_EPFL.quad import QuadRule
-
-from tqdm import tqdm
 
 # Gaussian quadrature for 1D interval [0, 1] using Legendre polynomials.    
 def univariate_gauss_interval(npoints=4):
@@ -18,15 +17,16 @@ def univariate_gauss_interval(npoints=4):
     Parameters
     ----------
     npoints : int, optional
-        Number of quadrature points, by default 4.
+        Number of quadrature points, by default equals 4.
     
     Returns
     -------
     QuadRule
         A `QuadRule` object containing the weights and points for the Gaussian quadrature.
     """
-    
+    # Generate Legendre-Gauss nodes and weights
     points, weights = np.polynomial.legendre.leggauss(npoints)
+    
     # Map from [-1, 1] to [0, 1]
     points = 0.5 * (points + 1)
     weights *= 0.5
@@ -49,7 +49,7 @@ class FEMSolver:
         Instance of the Black-Scholes PDE class that has to be solved.
     numb_elements : int
         Number of finite elements to use in the discretization of space.
-    quad_points : int
+    numb_quad_points : int
         Number of quadrature points to use for numerical integration.
         Default is 4, which corresponds to a 4-point Gauss-Legendre quadrature.
     element_type : str
@@ -136,7 +136,7 @@ class FEMSolver:
             Basis function derivatives w.r.t. xi
         """
         if self.element_type == 'P1':
-            # Linear basis functions (corrected order)
+            # Linear basis functions
             phi = np.array([1 - xi, xi])
             dphi = np.array([-1 * np.ones_like(xi), np.ones_like(xi)])
 
@@ -148,6 +148,20 @@ class FEMSolver:
         return phi, dphi
     
     def integration_basis_single_element(self, e):
+        """
+        Compute integration local matrices for basis functions on a single element.
+        
+        Parameters:
+        -----------
+        e : int
+            Element index for which to compute the local matrices.
+        Returns:
+        --------
+        M_local : ndarray
+            Local mass matrix for the element.
+        A_local : ndarray
+            Local stiffness matrix for the element.
+        """
         # Init local matrices for each element
         M_local = np.zeros((self.nodes_per_element, self.nodes_per_element))
         A_local = np.zeros((self.nodes_per_element, self.nodes_per_element))
@@ -193,18 +207,40 @@ class FEMSolver:
 
                     # Add to the stiffness matrix
                     A_local[i, j] += w * (term1 + term2 + term3)
+        
+        # Return local matrices
         return M_local, A_local
     
     def integration_rhs_single_element(self, e, t):
         """
         Compute integration local RHS vector for source term f(S, t).
+
+        Parameters:
+        -----------
+        e : int
+            Element index for which to compute the local RHS vector.
+        t : float
+            Current time point for the source term f(S, t).
+
+        Returns:
+        --------
+        F_local : ndarray
+            Local right-hand side vector for the element.
         """
+        # Initialize local RHS vector for this element
         F_local = np.zeros(self.nodes_per_element)
+
+        # Get node indices for this element
         global_nodes = self.nodes_in_element[e]
+
+        # Element boundaries
         S_left = self.nodes[global_nodes[0]]
         S_right = self.nodes[global_nodes[-1]]
+
+        # Size of the element
         h_e = S_right - S_left
 
+        # Integrate the source term f(S, t) over the element
         for q in range(len(self.quad.weights)):
             # Quadrature point and weight on reference element [0, 1]
             xi_quad = self.quad.points[q, 0]
@@ -250,7 +286,7 @@ class FEMSolver:
                     M[I, J] += M_local[i, j]
                     A[I, J] += A_local[i, j]
         
-        # Convert to sparse matrices for efficiency
+        # Convert to sparse matrices
         return csr_matrix(M), csr_matrix(A)
     
     def make_rhs(self, t):
@@ -291,14 +327,12 @@ class FEMSolver:
         F : ndarray, optional
             Right-hand side vector
         """
-        # BC are: du/dS(S_min, t) = 0, u(S_max, t) = 0
-
-        # Left boundary: ∂u/∂S = 0 (natural BC, already satisfied)
+        # Left boundary: du/dS = 0 (natural BC, already satisfied)
         
         # Right boundary: u(S_max, t) = 0
         last_node = self.numb_nodes - 1
         
-        # Convert to lil_matrix for efficient modification
+        # Convert to lil_matrix
         M = M.tolil()
         A = A.tolil()
         
@@ -312,7 +346,8 @@ class FEMSolver:
         if F is not None:
             F[last_node] = 0
             
-        return M.tocsr(), A.tocsr()
+        # Convert back to csr_matrix
+        return M.tocsr(), A.tocsr(), F
     
 
     def solve_in_time(self, numb_timesteps):
@@ -338,7 +373,7 @@ class FEMSolver:
         # The matrices
         M, A = self.make_matrices()
         F = self.make_rhs(times[0])
-        M, A = self.apply_boundary_conditions(M, A, F)
+        M, A, F = self.apply_boundary_conditions(M, A, F)
         
         # Initialize solution storage
         u_history = np.zeros((numb_timesteps + 1, self.numb_nodes))
@@ -349,6 +384,7 @@ class FEMSolver:
             # System matrix: (M + dt*A)
             system_matrix = M + dt * A
 
+            # Iterate over time steps
             for n in tqdm(range(numb_timesteps), desc=f"Solving in time (Backward Euler and {self.element_type})"):
                 # Right-hand side: M * u^n + dt * F^{n+1}
                 F_next = self.make_rhs(times[n + 1])
@@ -360,6 +396,8 @@ class FEMSolver:
                 
                 # Solve linear system
                 u_next = spsolve(system_matrix, rhs)
+
+                # Update current solution
                 u_current = u_next
                 u_history[n + 1] = u_next
                 
@@ -368,6 +406,7 @@ class FEMSolver:
             system_matrix = M + 0.5 * dt * A
             rhs_matrix = M - 0.5 * dt * A
 
+            # Iterate over time steps
             for n in tqdm(range(numb_timesteps), desc=f"Solving in time (Crank-Nicolson and {self.element_type})"):
                 t_current = times[n]
                 t_next = times[n + 1]
@@ -384,6 +423,8 @@ class FEMSolver:
                 
                 # Solve linear system
                 u_next = spsolve(system_matrix, rhs)
+
+                # Update current solution
                 u_current = u_next
                 u_history[n + 1] = u_next
         

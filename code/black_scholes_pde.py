@@ -1,5 +1,5 @@
 """
-Class for the Black-Scholes PDE.
+Class for the Black-Scholes PDE problems.
 """
 from abc import ABC, abstractmethod
 import numpy as np
@@ -15,8 +15,6 @@ class BaseBlackScholes(ABC):
         Minimum stock price.
     S_max : float
         Maximum stock price.
-    K : float, optional
-        Strike price of the option. Default is None.
     r : float
         Risk-free interest rate.
     sigma : float
@@ -25,6 +23,7 @@ class BaseBlackScholes(ABC):
         Time to maturity.
     """
     def __init__(self, S_min, S_max, r, sigma, T):
+        super().__init__()
         self.S_min = S_min
         self.S_max = S_max
         self.r = r
@@ -55,7 +54,7 @@ class BaseBlackScholes(ABC):
 class BlackScholesConstructedCos(BaseBlackScholes):
     """
     Class representing the Black-Scholes PDE for European put options with the constructed solution.
-    The constructed solution I chose is: (cos(0.4(x-3)(x-10)) - 1) exp(sin(t))
+    The constructed solution is: (cos(0.4(x-3)(x-10)) - 1) exp(-sin(t))
 
     Attributes:
     -----------
@@ -63,8 +62,6 @@ class BlackScholesConstructedCos(BaseBlackScholes):
         Minimum stock price.
     S_max : float
         Maximum stock price.
-    t : float
-        Time to maturity.
     r : float
         Risk-free interest rate.
     sigma : float
@@ -132,14 +129,14 @@ class BlackScholesTrue(BaseBlackScholes):
         Minimum stock price.
     S_max : float
         Maximum stock price.
-    K : float
-        Strike price of the option.
     r : float
         Risk-free interest rate.
     sigma : float
         Volatility of the underlying asset.
     T : float
         Time to maturity.
+    K : float
+        Strike price of the option.
     """
 
     def __init__(self, S_min, S_max, r, sigma, T, K):
@@ -164,7 +161,6 @@ class BlackScholesTrue(BaseBlackScholes):
         '''
         return (np.log(S / self.K) + (self.r + 0.5 * self.sigma**2) * t) / (self.sigma * np.sqrt(t))
 
-
     def d_2(self, S, t):
         '''
         Calculate d2 in the Black-Scholes formula.
@@ -181,7 +177,7 @@ class BlackScholesTrue(BaseBlackScholes):
 class BlackScholesConstructedPoly(BaseBlackScholes):
     """
     Class representing the Black-Scholes PDE for European put options with the constructed solution.
-    The constructed solution I chose is: ((S - S_min) ** 2 - (S_max - S_min) ** 2) * exp(-t)
+    The constructed solution is: ((S - S_min) ** 2 - (S_max - S_min) ** 2) * exp(-t)
 
     Attributes:
     -----------
@@ -189,8 +185,6 @@ class BlackScholesConstructedPoly(BaseBlackScholes):
         Minimum stock price.
     S_max : float
         Maximum stock price.
-    t : float
-        Time to maturity.
     r : float
         Risk-free interest rate.
     sigma : float
