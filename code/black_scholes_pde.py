@@ -146,8 +146,10 @@ class BlackScholesTrue(BaseBlackScholes):
     def rhs(self, S, t):
         """
         Right-hand side of the Black-Scholes PDE.
+        Returns a vector of zeros matching the shape of S.
         """
-        return 0
+        S = np.asarray(S)
+        return np.zeros_like(S)
 
     def u0(self, S):
         """

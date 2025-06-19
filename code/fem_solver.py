@@ -135,18 +135,21 @@ class FEMSolver:
         dphi : ndarray
             Basis function derivatives w.r.t. xi
         """
+        xi = np.asarray(xi)
         if self.element_type == 'P1':
             # Linear basis functions
             phi = np.array([1 - xi, xi])
-            dphi = np.array([-1 * np.ones_like(xi), np.ones_like(xi)])
 
+            # Derivatives of basis functions
+            dphi = np.array([-1 * np.ones_like(xi), np.ones_like(xi)])
         elif self.element_type == 'P2':
             # Quadratic basis functions
             phi = np.array([(2 * xi - 1) * (xi - 1), 4 * xi * (1 - xi), xi * (2 * xi - 1)])
+            
+            # Derivatives of basis functions
             dphi = np.array([4 * xi - 3, 4 - 8 * xi, 4 * xi - 1])
-
         return phi, dphi
-    
+
     def integration_basis_single_element(self, e):
         """
         Compute integration local matrices for basis functions on a single element.
@@ -162,55 +165,50 @@ class FEMSolver:
         A_local : ndarray
             Local stiffness matrix for the element.
         """
-        # Init local matrices for each element
-        M_local = np.zeros((self.nodes_per_element, self.nodes_per_element))
-        A_local = np.zeros((self.nodes_per_element, self.nodes_per_element))
-
         # Get node indices for this element
         global_nodes = self.nodes_in_element[e]
-        
-        # Element boundaries
+
+        # Get the left and right endpoints of the element
         S_left = self.nodes[global_nodes[0]]
         S_right = self.nodes[global_nodes[-1]]
-        
-        # Size of the element
+
+        # Element length
         h_e = S_right - S_left
-        
-        # Numerical integration over element
-        for q in range(len(self.quad.weights)):
-            # Quadrature point and weight on reference element [0, 1]
-            xi_quad = self.quad.points[q, 0]
-            weight_quad = self.quad.weights[q]
 
-            # Map from reference element to physical element
-            S_quad = S_left + xi_quad * h_e
+        # Quadrature points and weights
+        xi_quad = self.quad.points[:, 0]
+        weight_quad = self.quad.weights
 
-            # Evaluate basis functions at quadrature point
-            phi_quad, dphi_dxi_quad = self.basis_functions(xi_quad)
-            
-            # Transform derivatives to compensate for the mapping to the physical element
-            dphi_dS_quad = dphi_dxi_quad * (1.0 / h_e)
-            
-            # Integration weight including Jacobian
-            w = weight_quad * h_e
+        # Map quadrature points to physical element
+        S_quad = S_left + xi_quad * h_e
+        w = weight_quad * h_e
 
-            # Add contributions to element matrices
-            for i in range(self.nodes_per_element):
-                for j in range(self.nodes_per_element):
-                    # Mass matrix = \int \phi_i \phi_j dS
-                    M_local[i, j] += w * phi_quad[i] * phi_quad[j]
-                    
-                    # Terms for the stiffness matrix from bilinear form a(\phi_j, \phi_i) from the report
-                    term1 = (self.PDE.sigma**2 / 2) * S_quad**2 * dphi_dS_quad[j] * dphi_dS_quad[i]
-                    term2 = (self.PDE.sigma**2 - self.PDE.r) * S_quad * dphi_dS_quad[j] * phi_quad[i]
-                    term3 = self.PDE.r * phi_quad[j] * phi_quad[i]
+        # Evaluate basis functions and derivatives at all quadrature points
+        phi_quad, dphi_dxi_quad = self.basis_functions(xi_quad)
 
-                    # Add to the stiffness matrix
-                    A_local[i, j] += w * (term1 + term2 + term3)
-        
-        # Return local matrices
+        # Transform derivatives from reference element to physical element
+        dphi_dS_quad = dphi_dxi_quad * (1.0 / h_e)
+
+        # Vectorized computation of local matrices
+        # Mass matrix: sum_q w_q * phi_i(xi_q) * phi_j(xi_q)
+        M_local = np.einsum('q,iq,jq->ij', w, phi_quad, phi_quad)
+
+        # Stiffness matrix terms
+        term1 = (self.PDE.sigma**2 / 2) * S_quad**2
+        term2 = (self.PDE.sigma**2 - self.PDE.r) * S_quad
+        term3 = self.PDE.r
+
+        # Compute all terms at once for all quadrature points
+        A_local = np.zeros((self.nodes_per_element, self.nodes_per_element))
+        # term1: dphi_j * dphi_i
+        A_local += np.einsum('q,iq,jq->ij', w * term1, dphi_dS_quad, dphi_dS_quad)
+        # term2: dphi_j * phi_i
+        A_local += np.einsum('q,iq,jq->ij', w * term2, dphi_dS_quad, phi_quad)
+        # term3: phi_j * phi_i
+        A_local += np.einsum('q,iq,jq->ij', w * term3, phi_quad, phi_quad)
+
         return M_local, A_local
-    
+
     def integration_rhs_single_element(self, e, t):
         """
         Compute integration local RHS vector for source term f(S, t).
@@ -227,35 +225,21 @@ class FEMSolver:
         F_local : ndarray
             Local right-hand side vector for the element.
         """
-        # Initialize local RHS vector for this element
-        F_local = np.zeros(self.nodes_per_element)
-
-        # Get node indices for this element
         global_nodes = self.nodes_in_element[e]
-
-        # Element boundaries
         S_left = self.nodes[global_nodes[0]]
         S_right = self.nodes[global_nodes[-1]]
-
-        # Size of the element
         h_e = S_right - S_left
 
-        # Integrate the source term f(S, t) over the element
-        for q in range(len(self.quad.weights)):
-            # Quadrature point and weight on reference element [0, 1]
-            xi_quad = self.quad.points[q, 0]
-            weight_quad = self.quad.weights[q]
-            S_quad = S_left + xi_quad * h_e
-            phi_quad, _ = self.basis_functions(xi_quad)
+        xi_quad = self.quad.points[:, 0]
+        weight_quad = self.quad.weights
+        S_quad = S_left + xi_quad * h_e
+        w = weight_quad * h_e
 
-            # Integration weight including Jacobian
-            w = weight_quad * h_e
-            f_val = self.PDE.rhs(S_quad, t)
+        phi_quad, _ = self.basis_functions(xi_quad)
+        f_val = self.PDE.rhs(S_quad, t)
 
-            # Compute the integral contribution for the local RHS vector
-            for i in range(self.nodes_per_element):
-                F_local[i] += w * f_val * phi_quad[i]
-
+        # Vectorized local RHS
+        F_local = np.einsum('q,iq,q->i', w, phi_quad, f_val)
         return F_local
 
     def make_matrices(self):
@@ -269,24 +253,17 @@ class FEMSolver:
         A : sparse matrix
             Stiffness matrix
         """
-        # Initialize matrices
         M = np.zeros((self.numb_nodes, self.numb_nodes))
         A = np.zeros((self.numb_nodes, self.numb_nodes))
-        
-        # Iterate over elements
-        for e in range(self.numb_elements):
-            # Get node indices for this element
-            global_nodes = self.nodes_in_element[e]
 
-            # Construct the global matrices from the local matrices
+        for e in range(self.numb_elements):
+            global_nodes = self.nodes_in_element[e]
             M_local, A_local = self.integration_basis_single_element(e)
-            for i in range(self.nodes_per_element):
-                for j in range(self.nodes_per_element):
-                    I, J = global_nodes[i], global_nodes[j]
-                    M[I, J] += M_local[i, j]
-                    A[I, J] += A_local[i, j]
-        
-        # Convert to sparse matrices
+            # Vectorized assembly
+            idx = np.ix_(global_nodes, global_nodes)
+            M[idx] += M_local
+            A[idx] += A_local
+
         return csr_matrix(M), csr_matrix(A)
     
     def make_rhs(self, t):
@@ -304,15 +281,10 @@ class FEMSolver:
             Right-hand side vector
         """
         F = np.zeros(self.numb_nodes)
-        
-        # Iterate over elements to assemble the RHS
         for e in range(self.numb_elements):
             global_nodes = self.nodes_in_element[e]
             F_local = self.integration_rhs_single_element(e, t)
-            for i in range(self.nodes_per_element):
-                I = global_nodes[i]
-                F[I] += F_local[i]
-        
+            F[global_nodes] += F_local
         return F
     
 
