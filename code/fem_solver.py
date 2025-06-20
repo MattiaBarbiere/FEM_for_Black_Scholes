@@ -307,7 +307,7 @@ class FEMSolver:
         return F
     
 
-    def apply_boundary_conditions(self, M, A, F=None):
+    def apply_boundary_conditions(self, M, A, F):
         """
         Apply boundary conditions to matrices and optionally to RHS vector
         
@@ -315,8 +315,15 @@ class FEMSolver:
         -----------
         M, A : sparse matrices
             Mass and stiffness matrices
-        F : ndarray, optional
+        F : ndarray
             Right-hand side vector
+
+        Returns:
+        --------
+        M, A : sparse matrices
+            Modified mass and stiffness matrices with boundary conditions applied
+        F : ndarray
+            Modified right-hand side vector with boundary conditions applied
         """
         # Left boundary: du/dS = 0 (natural BC, already satisfied)
         
