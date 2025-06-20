@@ -488,8 +488,8 @@ where right-hand side $f(S,t)$ is given by
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.95\linewidth]{code/images/fem_vs_analytical_BlackScholesConstructedCos.png}
-    \caption{Analytical solution (blue) versus interpolated finite element solution (dashed red) for various methods at time $t=1$ when tasked to solve \Cref{def:constructed_cos}. The PDE was solved with $h =0.07$ and $\Delta t = 3.33 \cdot 10^{-3} $. First and second row correspond to P1 and P2 finite elements respectively. First and second column correspond to backwards Euler and Crank-Nicolson's method respectively. In the legend the maximum errors is presented for all four plots.}
+    \includegraphics[width=0.92\linewidth]{code/images/fem_vs_analytical_BlackScholesConstructedCos.png}
+    \caption{Analytical solution (blue) versus interpolated finite element solution (dashed red) for various methods at time $t=1$ when tasked to solve \Cref{def:constructed_cos}. The PDE was solved with $h =0.07$ and $\Delta t = 3.33 \cdot 10^{-3} $ using the Gauss-Legendre quadrature with $10$ points. First and second row correspond to P1 and P2 finite elements respectively. First and second column correspond to backwards Euler and Crank-Nicolson's method respectively. In the legend the maximum errors is presented for all four plots.}
     \label{fig:fem_vs_true_cos}
 \end{figure}
 
@@ -544,7 +544,7 @@ P2 & $\Delta t \approx h^3$ & $\Delta t \approx h^{3/2}$ \\
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.7\linewidth]{code/images/convergence_study_BlackScholesConstructedCos.png}
-    \caption{Convergence study for all four methods when solving \Cref{def:constructed_cos}. The $L^2$ error for all the methods was computed at the final time $T = 1$.}
+    \caption{Convergence study for all four methods when solving \Cref{def:constructed_cos}. The Gauss-Legendre quadrature with $5$ points was used when integrating. The $L^2$ error for all the methods was computed at the final time $T = 1$.}
     \label{fig:conv_cos}
 \end{figure}
 
@@ -553,8 +553,8 @@ With the results presented in the previous section, the next step is to perform 
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.95\linewidth]{code/images/fem_vs_analytical_BlackScholesTrue.png}
-    \caption{Analytical solution (blue) versus interpolated finite element solution (dashed red) for various methods at time $t=5$ when tasked to solve \Cref{def:problem}. The PDE was solved with $h =0.5$ and $\Delta t = 0.5 $. First and second row correspond to P1 and P2 finite elements respectively. First and second column correspond to backwards Euler and Crank-Nicolson's method respectively. In the top left the maximum errors is presented for all four plots.}
+    \includegraphics[width=0.92\linewidth]{code/images/fem_vs_analytical_BlackScholesTrue.png}
+    \caption{Analytical solution (blue) versus interpolated finite element solution (dashed red) for various methods at time $t=5$ when tasked to solve \Cref{def:problem}. The PDE was solved with $h =0.5$ and $\Delta t = 0.5$ using the Gauss-Legendre quadrature with $10$ points. First and second row correspond to P1 and P2 finite elements respectively. First and second column correspond to backwards Euler and Crank-Nicolson's method respectively. In legend the maximum errors is presented for all four plots.}
     \label{fig:fem_vs_true_true}
 \end{figure}
 
@@ -563,7 +563,7 @@ Recalling \Cref{tab:orders}, in this section a very similar convergence study is
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.7\linewidth]{code/images/convergence_study_BlackScholesTrue.png}
-    \caption{Convergence study for all four methods when solving \Cref{def:problem}. The $L^2$ error for all the methods was computed at the final time $T$.}
+    \caption{Convergence study for all four methods when solving \Cref{def:problem}. The Gauss-Legendre quadrature with $10$ points was used when integrating. The $L^2$ error for all the methods was computed at the final time $T=5$.}
     \label{fig:conv_true}
 \end{figure}
 
