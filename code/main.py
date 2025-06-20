@@ -10,8 +10,8 @@ from fem_solver import FEMSolver
 from black_scholes_pde import *
 
 # Flags to control which parts of the code to run
-COMPUTE_EXAMPLE_1 = True
-COMPUTE_EXAMPLE_2 = True
+COMPUTE_EXAMPLE_1 = False
+COMPUTE_EXAMPLE_2 = False
 COMPUTE_ANALYTICAL = True
 COMPUTE_CONVERGENCE_STUDY = True
 
@@ -285,8 +285,9 @@ def plot_convergence_errors(h_errors_dict, title="Convergence Study: Error vs El
     # Reference lines
     all_h = np.concatenate([np.array(hv) for hv, _ in h_errors_dict.values()])
     h_ref = np.sort(np.unique(all_h))
-    plt.loglog(h_ref, 0.05 * h_ref**2, '--', label='O(h^2)', alpha=0.7, color='gray')
-    plt.loglog(h_ref, 0.005 * h_ref**4, '--', label='O(h^4)', alpha=0.7, color='lightgray')
+    plt.loglog(h_ref, 0.05 * h_ref**2, '--', label='O(h^2)', alpha=1, color='gray')
+    plt.loglog(h_ref, 0.005 * h_ref**3, '--', label='O(h^3)', alpha=0.6, color='gray')
+    plt.loglog(h_ref, 0.0005 * h_ref**4, '--', label='O(h^4)', alpha=0.3, color='gray')
     plt.xlabel('Element size h')
     plt.ylabel('L2 Error')
     plt.title(title)
@@ -433,7 +434,7 @@ if __name__ == "__main__":
         pde = BlackScholesTrue(S_min, S_max, r, sigma, T, K)
 
         # Solve the PDE using FEM and compare with analytical solution
-        errors = test_fem_vs_analytical(pde, numb_elements=600, numb_timesteps=10)
+        errors = test_fem_vs_analytical(pde, numb_elements=1200, numb_timesteps=20)
         
         # Run convergence study to see the error vs. h curve
         if COMPUTE_CONVERGENCE_STUDY:
