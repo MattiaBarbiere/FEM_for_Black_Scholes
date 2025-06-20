@@ -159,7 +159,6 @@
 \clearpage
 \pagenumbering{arabic}
 
-Let us define the following quantities
 \begin{problem}[Black \& Scholes Equation for European Put Option]\label{def:problem}
 Consider the Black \& Scholes equation for the value \( u(S, t) \) of an European Put option:
 \[
@@ -281,7 +280,7 @@ is a norm in the Hilbert space \( V \) and we have the following Poincaré inequ
 \end{prop}
 
 \section{Question B}
-Before answering this question observe the a useful lemma.
+Before answering this question observe a useful lemma.
 \begin{lemma}\label{lemma_alg_id_and_ineq}
     For any integrable functions $f, g$ we have that
     \begin{equation*}
@@ -311,7 +310,7 @@ Before answering this question observe the a useful lemma.
         \end{align*}
 \end{lemma}
 \begin{proof}
-    The result is immediate after recalling the variational form of the problem as shown in \Cref{prop:variational_form} after using finite difference for approximating the derivative and replacing $u$ with $\theta u^{j} + (1- \theta) u^{j-1}$. \qedhere
+    The result is immediate after recalling the variational form of the problem as shown in \Cref{prop:variational_form}, using finite difference for approximating the derivative and replacing $u$ with $\theta u^{j} + (1- \theta) u^{j-1}$. \qedhere
     % \begin{align*}
     %     &\left( \dtu, v\right) + a(u,v) = \\
     %     &= \intS{v \dtu} + \auv = 0.
@@ -370,7 +369,7 @@ With the goal of applying the Lax-Milgram lemma \Cref{lemma:lax_mil} let us make
 \end{proof}
 
 \begin{prop}\label{prop:lax_milgram}
-    The semi-discrete problem in \Cref{lemma:semi_discrete_prob} with $\theta = 1$ is well posed for any time step $0<\Delta t \leq \frac{1}{2 \alpha}$.
+    The semi-discrete problem in \Cref{lemma:semi_discrete_prob} with $\theta = 1$ (i.e implicit Euler) is well posed for any time step $0<\Delta t \leq \frac{1}{2 \alpha}$.
 \end{prop}
 \begin{proof}
     Using $\theta = 1$ in the result of \Cref{lemma:semi_discrete_prob} leaves us with
@@ -405,7 +404,7 @@ With the goal of applying the Lax-Milgram lemma \Cref{lemma:lax_mil} let us make
 \end{proof}
 
 \begin{prop}
-    Given the semi-discrete problem in \Cref{lemma:semi_discrete_prob} with $\theta = 1$ (i.e implicit Euler), for any time step $\Delta t \leq \frac{1}{2 \alpha}$ the following inequality holds\\
+    Given the semi-discrete problem in \Cref{lemma:semi_discrete_prob} with $\theta = 1$ (i.e implicit Euler), for any time step $0 < \Delta t \leq \frac{1}{2 \alpha}$ the following inequality holds\\
     \begin{equation*}
         (1 - 2\alpha \Delta t)^N \| u^N \|_{L^2}^2 + \frac{\Delta t}{2} \sigma^2 \sum_{j=1}^{N-1} (1 - 2\alpha \Delta t)^{j-1} \seminormsq{u^j} \leq \| u^0 \|_{L^2}^2.
         \label{eq:placeholder_label}
@@ -420,7 +419,7 @@ With the goal of applying the Lax-Milgram lemma \Cref{lemma:lax_mil} let us make
     \begin{equation}\label{eq:discret_time_and_a_u_j+1}
         \intSlong{\frac{u^{j} - u^{j-1}}{\Delta t}  u^{j}} + a(u^{j},u^{j}) = 0.
     \end{equation}
-   We start by multiplying \Cref{eq:discret_time_and_a_u_j+1} by $\Delta t \geq 0$
+   We start by multiplying \Cref{eq:discret_time_and_a_u_j+1} by $\Delta t > 0$
    \begin{equation*}
     \intSlong{(u^{j} - u^{j-1})  u^{j}} + \Delta t \,a(u^{j},u^{j}) = 0.
     \end{equation*}
@@ -443,7 +442,7 @@ With the goal of applying the Lax-Milgram lemma \Cref{lemma:lax_mil} let us make
    As this inequality is valid for all $j \in \{1, \ldots, N \}$ we can take the sum over $j$ and we observe that the first two terms form a telescoping sum
    \begin{align*}
        &\sum_{j=1}^{N} \left[(1- 2\alpha \Delta t)^{j}\normsq{u^{j}}  - (1- 2\alpha \Delta t)^{j-1} \normsq{u^{j-1}}\right] + \Delta t \, \sigmafrac \sum_{j=1}^{N}(1- 2\alpha \Delta t)^{j-1}\seminormsq{u^{j}} \\
-       &\leq (1- 2\alpha \Delta t)^{N}\normsq{u^{N}} - \normsq{u^{0}} + \Delta t \, \sigmafrac \sum_{j=1}^{N}(1- 2\alpha \Delta t)^{j-1}\seminormsq{u^{j}} \leq 0.
+       &= (1- 2\alpha \Delta t)^{N}\normsq{u^{N}} - \normsq{u^{0}} + \Delta t \, \sigmafrac \sum_{j=1}^{N}(1- 2\alpha \Delta t)^{j-1}\seminormsq{u^{j}} \leq 0.
    \end{align*}
    We conclude by moving $\normsq{u^{0}}$ to the right hand side.\qedhere
 \end{proof}
@@ -453,11 +452,11 @@ With the goal of applying the Lax-Milgram lemma \Cref{lemma:lax_mil} let us make
 \section{Question C}
 This section the finite element method is employed to solve the Black-Scholes equation. In \Cref{sec:constructed_cos} a constructed solution with a non-zero right-hand side is solved while \Cref{sec:true_sol} solves the PDE explained in \Cref{def:problem}. 
 \subsection{Constructed solution}\label{sec:constructed_cos}
-For the constructed problem the parameters are taken to be: $S_{min} = 3, S_{max}=10, r=0.04, \sigma = 0.2,$ and $T=1$ Let us construct a solution by adapting the right-hand side and the initial conditions. The constructed solution is taken to be
+For the constructed problem the parameters are taken to be: $S_{min} = 3, S_{max}=10, r=0.04, \sigma = 0.2,$ and $T=1$. Let us construct a solution by adapting the right-hand side and the initial conditions. The constructed solution is chosen as
 \begin{equation}\label{eq:constructed_cos}
     u(S,t)=\left[\cos\left(\phi(S)\right)-1\right]e^{-\sin(t)} \quad \text{ where } \quad \phi(S)=0.4(S-3)(S-10).
 \end{equation}
-A visualization of this function is given in \Cref{fig:plot_cos} for some values of $t \in [0,1]$. With this solution in mind, the problem to tackle is the following.
+A visualization of this function is given in \Cref{fig:plot_cos} for some values of $t \in [0,1]$. This function is the analytical solution to the following problem.
 % \begin{align}
 % u_0(S)&=\cos\left(\phi(S)\right)-1 \label{eq:initial_cos} \\[10pt]
 % f(S, t) &=  u(S,t) \left(-\cos (t)\right) +  \label{eq:source_cos} \\
@@ -490,11 +489,11 @@ where right-hand side $f(S,t)$ is given by
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.95\linewidth]{code/images/fem_vs_analytical_BlackScholesConstructedCos.png}
-    \caption{Analytical solution (blue) versus interpolated finite element solution (dashed red) for various methods at time $t=1$ when tasked to solve \Cref{def:constructed_cos}. The PDE was solved with $h =0.07$ and $\Delta t = 3.33 \cdot 10^{-3} $. First and second row correspond to P1 and P2 finite elements respectively. First and second column correspond to backwards Euler and Crank-Nicolson's method respectively. In the top left the maximum errors is presented for all four plots.}
+    \caption{Analytical solution (blue) versus interpolated finite element solution (dashed red) for various methods at time $t=1$ when tasked to solve \Cref{def:constructed_cos}. The PDE was solved with $h =0.07$ and $\Delta t = 3.33 \cdot 10^{-3} $. First and second row correspond to P1 and P2 finite elements respectively. First and second column correspond to backwards Euler and Crank-Nicolson's method respectively. In the legend the maximum errors is presented for all four plots.}
     \label{fig:fem_vs_true_cos}
 \end{figure}
 
-The right-hand side and initial conditions were constructed starting from $u(S,t)$, however the boundary conditions given by \Cref{def:problem} were imposed a priori thus, to make sure \Cref{def:constructed_cos} is a valid solution, we need to verify that $u(S,t)$ agrees with the given boundary conditions.
+The right-hand side and initial conditions were constructed starting from $u(S,t)$, however the boundary conditions given by \Cref{def:problem} were imposed \textit{a priori} thus, to make sure \Cref{def:constructed_cos} is valid, we need to verify that $u(S,t)$ agrees with the given boundary conditions.
 \begin{lemma}
     The solution $u(S,t)$ proposed in \Cref{eq:constructed_cos} agrees with the boundary conditions stated in \Cref{def:problem}.
 \end{lemma}
@@ -522,7 +521,7 @@ As a initial visual check \Cref{fig:fem_vs_true_cos} illustrates the analytical 
 % \end{figure}
 
 \subsubsection{Convergence study of the constructed solution}
-The final experiment on the artificial solution was to perform a convergence study. For the results to be meaningful, it is important that the time discretization error does not dominate. To ensure this, the convergence study was performed using element size $h$ and time interval $\Delta t$ as shown in \Cref{tab:orders}. Performing the experiment results in \Cref{fig:conv_cos}. The plot clearly illustrates that both Crank-Nicolson and backwards Euler have a convergence order of $2$ when using P1 finite elements and order $4$ when working with P2 finite elements. \\
+The final experiment on the artificial solution was to perform a convergence study. For the results to be meaningful, it is important that the time discretization error does not dominate. To ensure this, the convergence study was performed using element size $h$ and time interval $\Delta t$ as shown in \Cref{tab:orders}. Performing the experiment gives \Cref{fig:conv_cos}. The plot clearly illustrates that both Crank-Nicolson and backwards Euler have a convergence order of $2$ when using P1 finite elements and order $3$ when working with P2 finite elements. \\
 
 \begin{table}[h!]
 \centering
@@ -545,12 +544,12 @@ P2 & $\Delta t \approx h^3$ & $\Delta t \approx h^{3/2}$ \\
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.7\linewidth]{code/images/convergence_study_BlackScholesConstructedCos.png}
-    \caption{Convergence study for all four methods when solving \Cref{def:constructed_cos}. The $L^2$ error for all the methods was computed at the final time $T$.}
+    \caption{Convergence study for all four methods when solving \Cref{def:constructed_cos}. The $L^2$ error for all the methods was computed at the final time $T = 1$.}
     \label{fig:conv_cos}
 \end{figure}
 
 \subsection{True solution}\label{sec:true_sol}
-With the results presented in the previous section, the next step is to perform the same study on the analytical solution of \Cref{def:problem}. The parameters are chosen as: $S_{min}=0, S_{max}=300, K=100, r=0.04, \sigma =0.2, $ and $T = 5$. To begin \Cref{fig:fem_vs_true_true} illustrate the analytical solution when compared to the interpolated solution of the finite element solver. Visually it is clear that all the methods manage to capture the analytical solution. It is, however, important to point out that the maximum errors are indeed large than before. This will also be evident in the convergence study. 
+With the results presented in the previous section, the next step is to perform the same study on the analytical solution of \Cref{def:problem}. The parameters are chosen as: $S_{min}=0, S_{max}=300, K=100, r=0.04, \sigma =0.2, $ and $T = 5$. To begin, \Cref{fig:fem_vs_true_true} illustrates the analytical solution when compared to the interpolated solution of the finite element solver. Visually it is clear that all the methods manage to capture the analytical solution. It is, however, important to point out that the maximum errors are indeed large than before. This will also be evident in the convergence study. 
 
 \begin{figure}[!ht]
     \centering
@@ -568,7 +567,7 @@ Recalling \Cref{tab:orders}, in this section a very similar convergence study is
     \label{fig:conv_true}
 \end{figure}
 
-The first striking observation is that the solver struggles a lot more to solve this problem than \Cref{def:constructed_cos}. There are many reasons why this might be. First the space $\Omega$ and the final time $T$ are much large, leaving way for numerical errors to appear and propagate. Secondly, and more importantly, is the lack of smoothness in the initial condition of \Cref{def:problem}. Indeed this initial function has a problematic point at $S=K$. This leads to an overall suboptimal outcome of the finite element solver because some regularity assumptions fail. 
+The first striking observation is that the solver struggles a lot more to solve this problem than \Cref{def:constructed_cos}. There are many reasons why this might be. First the space $\Omega$ and the final time $T$ are much larger, leaving way for numerical errors to appear and propagate. Secondly, and more importantly, is the lack of smoothness in the initial condition of \Cref{def:problem}. Indeed this initial function has a problematic point at $S=K$. This leads to an overall suboptimal outcome of the finite element solver because some regularity assumptions fail. 
 There are nonetheless some possible ways to mitigate this. The first candidate is to use higher order finite elements. This is likely to help by providing a better approximation and reducing any errors when using P1 or P2 elements. Secondly, other methods beside Crank-Nicolson and backwards Euler might prove to be more beneficial in this case, giving a possibly better and more stable convergence. Finally, [2] provides important insights into other potential improvements, suggesting more advanced techniques and approaches.
 
 
