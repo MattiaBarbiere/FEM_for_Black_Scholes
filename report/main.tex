@@ -197,8 +197,9 @@ is a norm in the Hilbert space \( V \) and we have the following Poincaré inequ
 \begin{df}\label{def:a}
     For $u \in \czero$ and $v \in V$ define the following bilinear form
     \begin{equation*}
-        a(u,v) := \auv
+        a(u,v) := \auv.
     \end{equation*}
+    For any $u^* \in V$ we also have $u^{*}(\cdot, t) = u^* \in \czero$ and thus with a slight abuse of notation also $a(u^*,v)$ is well defined.
 \end{df}
 \begin{prop}\label{prop:variational_form}
     The variational form of the problem defined in \Cref{def:problem} is
@@ -256,33 +257,26 @@ is a norm in the Hilbert space \( V \) and we have the following Poincaré inequ
         \end{equation*}
         Using properties of the absolute value we can bound this by below
         \begin{equation}\label{eq:first_lower_bound_a}
-            a(v,v) \geq \sigmafrac \seminormsq{v} - \left| (\sigma^2 - r) \intS{S v \dSv}\right| + r \normsq{v}.
+            a(v,v) \geq \sigmafrac \seminormsq{v} - \left| (\sigma^2 - r) \intS{S v \dSv}\right| + r \normsq{v} \geq \sigmafrac \seminormsq{v} - \left| (\sigma^2 - r) \intS{S v \dSv}\right|.
         \end{equation}
-        Let us focus on bounding the second term
+        Let us consider two cases. If $r = \sigma^2$ then for any choice of $\varepsilon >0$ we must have
+        \begin{equation}
+            a(v,v)  \geq \sigmafrac \seminormsq{v} \geq \frac{\sigma^2}{4} \seminormsq{v} \geq \frac{\sigma^2}{4} \seminormsq{v} - \varepsilon \normsq{v}.
+        \end{equation}
+        We can thus choose $\alpha = \varepsilon$ to get the desired inequality.
+
+        Conversely, if $r \neq \sigma^2$ then looking at the second term from \Cref{eq:first_lower_bound_a} we have
         \begin{align*}
             - \left| (\sigma^2 - r) \intS{S v \dSv}\right| &\geq - \left| (\sigma^2 - r) \right| \intS{\left|S v \dSv \right|} && \text{ by the triangle inequality}\\
             &\geq -\left| (\sigma^2 - r) \right| \norm{S \dSv} \norm{v} && \text{ by Cauchy–Schwarz inequality}\\
             &\geq -\left| (\sigma^2 - r) \right| \left( \frac{ \normsq{S \dSv}}{2 \delta} + \frac{\delta \normsq{v}}{2}\right) && \text{ by Young's inequality, $\delta >0$}\\
             & \geq - \frac{\sigma^2}{4} \seminormsq{v} - \frac{(\sigma^2 - r)^2 \normsq{v}}{ \sigma^2}
         \end{align*}
-        where the last inequality came from choosing $\delta = 2| (\sigma^2 - r) | / \sigma^2$. Plugging this back into \Cref{eq:first_lower_bound_a} give us the following lower bound for $a(v,v)$
+        where the last inequality came from choosing $\delta = 2| (\sigma^2 - r) | / \sigma^2 >0$. Plugging this back into \Cref{eq:first_lower_bound_a} give us the following lower bound for $a(v,v)$
         \begin{align*}
-            a(v,v) &\geq \frac{\sigma^2}{4} \seminormsq{v} - \frac{(\sigma^2 - r)^2}{ \sigma^2} \normsq{v} + r \normsq{v}\\
-            &\geq \frac{\sigma^2}{4} \seminormsq{v} - \frac{(\sigma^2 - r)^2}{ \sigma^2} \normsq{v}.
+            a(v,v) &\geq \frac{\sigma^2}{4} \seminormsq{v} - \frac{(\sigma^2 - r)^2}{ \sigma^2} \normsq{v}
         \end{align*}
-        by noticing that $r \normsq{v} \geq 0$.
-        
-        Let us now consider two cases. Firstly, if $r \neq \sigma^2$ we can choose $\alpha = (\sigma^2 - r)^2 / \sigma^2 > 0$ and get
-        \begin{equation*}
-            a(v,v) \geq \frac{\sigma^2}{4} \seminormsq{v} - \alpha \normsq{v}
-        \end{equation*}
-        which is the desired inequality.
-
-        Secondly if $r = \sigma^2$ we can choose any $\alpha >0$ and, in particular, we can choose $\alpha$ arbitrarily close to $0$. For whatever choice of $\alpha > 0$ the following holds
-        \begin{equation*}
-            a(v,v) \geq \frac{\sigma^2}{4} \seminormsq{v} - \alpha \normsq{v}
-        \end{equation*}
-        which is again the requested inequality.
+        By choosing $\alpha = (\sigma^2 - r)^2 / \sigma^2 > 0$ we are left with the requested inequality.\qedhere
     \end{proof}
 \end{prop}
 
@@ -376,7 +370,7 @@ With the goal of applying the Lax-Milgram lemma \Cref{lemma:lax_mil} let us make
 \end{proof}
 
 \begin{prop}\label{prop:lax_milgram}
-    The semi-discrete problem in \Cref{lemma:semi_discrete_prob} with $\theta = 1$ is well posed for any time step $\Delta t \leq \frac{1}{2 \alpha}$.
+    The semi-discrete problem in \Cref{lemma:semi_discrete_prob} with $\theta = 1$ is well posed for any time step $0<\Delta t \leq \frac{1}{2 \alpha}$.
 \end{prop}
 \begin{proof}
     Using $\theta = 1$ in the result of \Cref{lemma:semi_discrete_prob} leaves us with
@@ -488,14 +482,14 @@ where right-hand side $f(S,t)$ is given by
 \end{problem}
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.75\linewidth]{code/images/true_constructed_cos.png}
+    \includegraphics[width=0.7\linewidth]{code/images/true_constructed_cos.png}
     \caption{Analytical solution $u(S,t)$ given by \Cref{eq:constructed_cos} as a function of $S$ for values of $t \in \{0, 0.25, 0.5, 0.75, 1\}$.}
     \label{fig:plot_cos}
 \end{figure}
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=\linewidth]{code/images/fem_vs_analytical_BlackScholesConstructedCos.png}
+    \includegraphics[width=0.95\linewidth]{code/images/fem_vs_analytical_BlackScholesConstructedCos.png}
     \caption{Analytical solution (blue) versus interpolated finite element solution (dashed red) for various methods at time $t=1$ when tasked to solve \Cref{def:constructed_cos}. The PDE was solved with $h =0.07$ and $\Delta t = 3.33 \cdot 10^{-3} $. First and second row correspond to P1 and P2 finite elements respectively. First and second column correspond to backwards Euler and Crank-Nicolson's method respectively. In the top left the maximum errors is presented for all four plots.}
     \label{fig:fem_vs_true_cos}
 \end{figure}
@@ -551,7 +545,7 @@ P2 & $\Delta t \approx h^3$ & $\Delta t \approx h^{3/2}$ \\
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.7\linewidth]{code/images/convergence_study_BlackScholesConstructedCos.png}
-    \caption{Convergence study for all four methods when solving \Cref{def:constructed_cos}.}
+    \caption{Convergence study for all four methods when solving \Cref{def:constructed_cos}. The $L^2$ error for all the methods was computed at the final time $T$.}
     \label{fig:conv_cos}
 \end{figure}
 
@@ -560,7 +554,7 @@ With the results presented in the previous section, the next step is to perform 
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=\linewidth]{code/images/fem_vs_analytical_BlackScholesTrue.png}
+    \includegraphics[width=0.95\linewidth]{code/images/fem_vs_analytical_BlackScholesTrue.png}
     \caption{Analytical solution (blue) versus interpolated finite element solution (dashed red) for various methods at time $t=5$ when tasked to solve \Cref{def:problem}. The PDE was solved with $h =0.5$ and $\Delta t = 0.5 $. First and second row correspond to P1 and P2 finite elements respectively. First and second column correspond to backwards Euler and Crank-Nicolson's method respectively. In the top left the maximum errors is presented for all four plots.}
     \label{fig:fem_vs_true_true}
 \end{figure}
@@ -570,7 +564,7 @@ Recalling \Cref{tab:orders}, in this section a very similar convergence study is
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.7\linewidth]{code/images/convergence_study_BlackScholesTrue.png}
-    \caption{Convergence study for all four methods when solving \Cref{def:problem}.}
+    \caption{Convergence study for all four methods when solving \Cref{def:problem}. The $L^2$ error for all the methods was computed at the final time $T$.}
     \label{fig:conv_true}
 \end{figure}
 
