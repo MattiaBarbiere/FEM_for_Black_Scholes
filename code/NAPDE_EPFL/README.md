@@ -1,1 +1,0 @@
-These files were taken from [NAPDE 2024](https://github.com/JochenHinz/NAPDE_2024). All credit goes to Jochen Hinz.

@@ -7,7 +7,7 @@ from scipy.sparse.linalg import spsolve
 from tqdm import tqdm
 
 from black_scholes_pde import BaseBlackScholes
-from NAPDE_EPFL.quad import QuadRule
+from quad import QuadRule
 
 # Gaussian quadrature for 1D interval [0, 1] using Legendre polynomials.    
 def univariate_gauss_interval(npoints=4):
