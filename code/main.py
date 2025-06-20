@@ -83,7 +83,7 @@ def test_fem_vs_analytical(pde: BaseBlackScholes, numb_elements, numb_timesteps)
             numb_elements=numb_elements, 
             element_type=element_type,
             schema=schema,
-            numb_quad_points=10
+            numb_quad_points=20
         )
         
         # Solve the PDE in time
@@ -418,15 +418,15 @@ if __name__ == "__main__":
             h_errors_dict = {}
             
             # P1 CN
-            h1, e1 = convergence_study(pde, element_counts, schema='CN', element_type='P1', dt_h_power=1, dt_h_factor=1.0)
+            h1, e1 = convergence_study(pde, element_counts, schema='CN', element_type='P1', dt_h_power=1, dt_h_factor=1.0, numb_quad_points=5)
             h_errors_dict['P1 CN'] = (h1, e1)
             
             # P1 BE
-            h2, e2 = convergence_study(pde, element_counts, schema='BE', element_type='P1', dt_h_power=2, dt_h_factor=1.0)
+            h2, e2 = convergence_study(pde, element_counts, schema='BE', element_type='P1', dt_h_power=2, dt_h_factor=1.0, numb_quad_points=5)
             h_errors_dict['P1 BE'] = (h2, e2)
             
             # P2 CN
-            h3, e3 = convergence_study(pde, element_counts, schema='CN', element_type='P2', dt_h_power=3/2, dt_h_factor=1.0)
+            h3, e3 = convergence_study(pde, element_counts, schema='CN', element_type='P2', dt_h_power=3/2, dt_h_factor=1.0, numb_quad_points=5)
             h_errors_dict['P2 CN'] = (h3, e3)
             
             # P2 BE
@@ -461,19 +461,19 @@ if __name__ == "__main__":
             h_errors_dict = {}
             
             # P1 CN
-            h1, e1 = convergence_study(pde, element_counts, schema='CN', element_type='P1', dt_h_power=1, dt_h_factor=1.0, numb_quad_points=5)
+            h1, e1 = convergence_study(pde, element_counts, schema='CN', element_type='P1', dt_h_power=1, dt_h_factor=1.0, numb_quad_points=10)
             h_errors_dict['P1 CN'] = (h1, e1)
             
             # P1 BE
-            h2, e2 = convergence_study(pde, element_counts, schema='BE', element_type='P1', dt_h_power=2, dt_h_factor=1.0, numb_quad_points=5)
+            h2, e2 = convergence_study(pde, element_counts, schema='BE', element_type='P1', dt_h_power=2, dt_h_factor=1.0, numb_quad_points=10)
             h_errors_dict['P1 BE'] = (h2, e2)
             
             # P2 CN
-            h3, e3 = convergence_study(pde, element_counts, schema='CN', element_type='P2', dt_h_power=3/2, dt_h_factor=1.0, numb_quad_points=5)
+            h3, e3 = convergence_study(pde, element_counts, schema='CN', element_type='P2', dt_h_power=3/2, dt_h_factor=1.0, numb_quad_points=10)
             h_errors_dict['P2 CN'] = (h3, e3)
             
             # P2 BE
-            h4, e4 = convergence_study(pde, element_counts, schema='BE', element_type='P2', dt_h_power=3, dt_h_factor=1.0, numb_quad_points=5)
+            h4, e4 = convergence_study(pde, element_counts, schema='BE', element_type='P2', dt_h_power=3, dt_h_factor=1.0, numb_quad_points=10)
             h_errors_dict['P2 BE'] = (h4, e4)
             
             # Plot convergence errors
