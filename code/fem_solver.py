@@ -325,7 +325,7 @@ class FEMSolver:
         F : ndarray
             Modified right-hand side vector with boundary conditions applied
         """
-        # Left boundary: du/dS = 0 (natural BC, already satisfied)
+        # Left boundary: du/dS = 0 naturally satisfied
         
         # Right boundary: u(S_max, t) = 0
         last_node = self.numb_nodes - 1

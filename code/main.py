@@ -36,9 +36,9 @@ def test_fem_vs_analytical(pde: BaseBlackScholes, numb_elements, numb_timesteps)
         The PDE instance to use for the test. It can be either the true analytical solution
         or a constructed one.
     numb_elements : int
-        Number of elements in the spatial discretization (default is 100).
+        Number of elements in the spatial discretization.
     numb_timesteps : int
-        Number of time steps for the temporal discretization (default is 300).
+        Number of time steps for the temporal discretization.
     
     Returns
     -------
@@ -89,6 +89,7 @@ def test_fem_vs_analytical(pde: BaseBlackScholes, numb_elements, numb_timesteps)
             time_idx = np.argmin(np.abs(times_from_solver - t_val))
             actual_time_point = times_from_solver[time_idx]
             
+            # Get the FEM solution at the current time point
             fem_solution_at_nodes = u_history[time_idx]
             
             # Calculate analytical solution at the fem nodes for error calculation
