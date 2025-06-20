@@ -5,15 +5,19 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import scipy.interpolate
+import os
 
 from fem_solver import FEMSolver
 from black_scholes_pde import *
 
 # Flags to control which parts of the code to run
-COMPUTE_EXAMPLE_1 = False
+COMPUTE_EXAMPLE_1 = True
 COMPUTE_EXAMPLE_2 = False
 COMPUTE_ANALYTICAL = True
 COMPUTE_CONVERGENCE_STUDY = True
+
+# Set to true if images should be saved
+SAVE_IMAGES = False
 
 # Set font size for plots
 GLOBAL_FONT_SIZE = 18
@@ -25,6 +29,12 @@ plt.rcParams.update({
     'ytick.labelsize': GLOBAL_FONT_SIZE,
     'legend.fontsize': GLOBAL_FONT_SIZE
 })
+
+def ensure_images_folder():
+    images_dir = os.path.join(os.path.dirname(__file__), "images")
+    if not os.path.exists(images_dir):
+        os.makedirs(images_dir)
+    return images_dir
 
 def test_fem_vs_analytical(pde: BaseBlackScholes, numb_elements, numb_timesteps):
     """
@@ -137,7 +147,9 @@ def test_fem_vs_analytical(pde: BaseBlackScholes, numb_elements, numb_timesteps)
         axes[i].grid(True, alpha=0.3)
     
     plt.tight_layout()
-    plt.savefig(f"./code/images/fem_vs_analytical_{pde.__class__.__name__}.png", dpi=300, bbox_inches='tight')
+    if SAVE_IMAGES:
+        images_dir = ensure_images_folder()
+        plt.savefig(os.path.join(images_dir, f"fem_vs_analytical_{pde.__class__.__name__}.png"), dpi=300, bbox_inches='tight')
     plt.show()
     
     print("\n" + "="*18)
@@ -174,7 +186,9 @@ def test_fem_vs_analytical(pde: BaseBlackScholes, numb_elements, numb_timesteps)
     plt.grid(True, alpha=0.3)
     
     plt.tight_layout()
-    plt.savefig(f"./code/images/error_vs_time_{pde.__class__.__name__}.png", dpi=300, bbox_inches='tight')
+    if SAVE_IMAGES:
+        images_dir = ensure_images_folder()
+        plt.savefig(os.path.join(images_dir, f"error_vs_time_{pde.__class__.__name__}.png"), dpi=300, bbox_inches='tight')
     plt.show()
     
     return errors
@@ -293,8 +307,9 @@ def plot_convergence_errors(h_errors_dict, title="Convergence Study: Error vs El
     plt.title(title)
     plt.legend(loc='lower right')
     plt.grid(True, alpha=0.3)
-    if filename:
-        plt.savefig(filename, dpi=300, bbox_inches='tight')
+    if filename and SAVE_IMAGES:
+        images_dir = ensure_images_folder()
+        plt.savefig(os.path.join(images_dir, os.path.basename(filename)), dpi=300, bbox_inches='tight')
     plt.show()
 
 if __name__ == "__main__":
@@ -327,7 +342,9 @@ if __name__ == "__main__":
         plt.ylabel('u(S, t)')
         plt.legend()
         plt.grid(True, alpha=0.3)
-        plt.savefig("./code/images/true_constructed_cos.png", dpi=300, bbox_inches='tight')
+        if SAVE_IMAGES:
+            images_dir = ensure_images_folder()
+            plt.savefig(os.path.join(images_dir, "true_constructed_cos.png"), dpi=300, bbox_inches='tight')
         plt.show()
 
         # Solve the PDE using FEM and compare with analytical solution
@@ -355,7 +372,7 @@ if __name__ == "__main__":
             h_errors_dict['P2 BE'] = (h4, e4)
             
             # Plot convergence errors
-            plot_convergence_errors(h_errors_dict, filename=f"./code/images/convergence_study_{pde.__class__.__name__}.png")
+            plot_convergence_errors(h_errors_dict, filename=f"convergence_study_{pde.__class__.__name__}.png")
         
 
     #################################
@@ -387,7 +404,9 @@ if __name__ == "__main__":
         plt.ylabel('u(S, t)')
         plt.legend()
         plt.grid(True, alpha=0.3)
-        plt.savefig("./code/images/true_constructed_poly.png", dpi=300, bbox_inches='tight')
+        if SAVE_IMAGES:
+            images_dir = ensure_images_folder()
+            plt.savefig(os.path.join(images_dir, "true_constructed_poly.png"), dpi=300, bbox_inches='tight')
         plt.show()
 
         # Solve the PDE using FEM and compare with analytical solution
@@ -415,7 +434,7 @@ if __name__ == "__main__":
             h_errors_dict['P2 BE'] = (h4, e4)
 
             # Plot convergence errors
-            plot_convergence_errors(h_errors_dict, filename=f"./code/images/convergence_study_{pde.__class__.__name__}.png")
+            plot_convergence_errors(h_errors_dict, filename=f"convergence_study_{pde.__class__.__name__}.png")
         
 
     ##########################
@@ -458,5 +477,5 @@ if __name__ == "__main__":
             h_errors_dict['P2 BE'] = (h4, e4)
             
             # Plot convergence errors
-            plot_convergence_errors(h_errors_dict, filename=f"./code/images/convergence_study_{pde.__class__.__name__}.png")
+            plot_convergence_errors(h_errors_dict, filename=f"convergence_study_{pde.__class__.__name__}.png")
 
