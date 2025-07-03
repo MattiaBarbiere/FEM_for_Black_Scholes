@@ -18,6 +18,8 @@ Numerical approximation of PDEs MATH-451 project, Spring 2025, EPFL
 ## Motivation
 This project aims to numerically solve the Black-Scholes PDE for European put options using finite element methods. By reformulating the equation in its variational form and applying time-stepping schemes like backward Euler and Crank-Nicolson, the project investigates stability, accuracy, and convergence. Both a constructed solution and the real model are used to validate the method. The work combines theory with implementation to explore a key problem in computational finance.
 
+This project was assigned as part of the Numerical approximation of PDEs MATH-451 project at EPFL. The instructions of the exercises are given in [europeanput.pdf](./europeanput.pdf).
+
 ---
 
 ## Installation
@@ -26,7 +28,7 @@ Ensure you have Python 3.10+ and a virtual environment activated. Next clone the
 ```bash
 >>> git clone https://github.com/MattiaBarbiere/FEM_for_Black_Scholes.git
 ```
-To install the requirements, move into the `code/` folder and run
+To install the requirements, move into the [code/](./code/) folder and run
 ```bash
 >>> pip install -r requirements.txt
 ```
@@ -34,7 +36,7 @@ To install the requirements, move into the `code/` folder and run
 ---
 
 ## Code structure
-All the code is available in the `code/` folder.
+All the code is available in the [code/](./code/) folder.
 
 - **fem_solver.py**: Code for the 1D finite element solver.
 
@@ -70,7 +72,7 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 
 ---
 
-## Authors
+## Author
 
 Developed by **Mattia Barbiere** as part of the Numerical approximation of PDEs MATH-451 course during the spring 2025 semester at EPFL.  
 GitHub: [@MattiaBarbiere](https://github.com/MattiaBarbiere)
