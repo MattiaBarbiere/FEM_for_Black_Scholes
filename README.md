@@ -8,7 +8,7 @@ Numerical approximation of PDEs MATH-451 project, Spring 2025, EPFL
 
 1. [Motivation](#motivation)
 2. [Installation](#installation)
-3. [Folder Structure of DL_vs_HateSpeech](#folder-structure-of-dl_vs_hatespeech)
+3. [Code structure](#code-structure)
 4. [Report](#report)
 5. [License](#license)
 6. [Authors](#authors)
@@ -24,7 +24,7 @@ This project aims to numerically solve the Black-Scholes PDE for European put op
 Ensure you have Python 3.10+ and a virtual environment activated. Next clone the repository onto your local machine:
 
 ```bash
->>> git clone https://github.com/MattiaBarbiere/Numerical_approx_of_PDEs.git
+>>> git clone https://github.com/MattiaBarbiere/FEM_for_Black_Scholes.git
 ```
 To install the requirements, move into the `code/` folder and run
 ```bash
