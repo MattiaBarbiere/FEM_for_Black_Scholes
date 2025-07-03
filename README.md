@@ -55,11 +55,13 @@ For more details, see [code/README.md](./code/README.md) and docstrings in each 
 For the full report of the project, including some theoretical background and experimental analysis, visit [Final_report_Mattia_Barbiere](./Final_report_Mattia_Barbiere.pdf).
 
 ### Result
+
 For a visual example, below you find the analytical solution (blue) versus interpolated finite element solution (dashed red) for various methods at time $t = 5$. The PDE was solved with $h = 0.5$ and
 $\Delta t = 0.5$ using the Gauss-Legendre quadrature with 10 points. First and second row correspond to
 P1 and P2 finite elements respectively. First and second column correspond to backwards Euler and
 Crank-Nicolson’s method respectively. In legend the maximum errors is presented for all four plots.
 ![Analytical_vs_fem](./code/images/fem_vs_analytical_BlackScholesTrue.png)
+
 ---
 
 ## License
